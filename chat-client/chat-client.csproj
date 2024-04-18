@@ -57,12 +57,6 @@
     <Compile Include="View\Chat\Chat.Designer.cs">
       <DependentUpon>Chat.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\Connection\Connection.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="View\Connection\Connection.Designer.cs">
-      <DependentUpon>Connection.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\Login\Login.cs">
@@ -79,9 +73,6 @@
     </Compile>
     <EmbeddedResource Include="View\Chat\Chat.resx">
       <DependentUpon>Chat.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="View\Connection\Connection.resx">
-      <DependentUpon>Connection.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -114,6 +105,12 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\chat-app.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\password.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

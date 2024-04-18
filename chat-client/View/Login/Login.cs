@@ -12,9 +12,12 @@ namespace chat_client.View.Login
 {
     public partial class Login : Form
     {
+        private string username;
+        private string password;
         public Login()
         {
             InitializeComponent();
         }
+
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using chat_client.View.Login;
 
 namespace chat_client
 {
@@ -16,7 +17,7 @@ namespace chat_client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new chatApp());
+            Application.Run(new Login());
         }
     }
 }
