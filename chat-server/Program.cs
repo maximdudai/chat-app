@@ -10,6 +10,7 @@ namespace chat_server
     {
         static void Main(string[] args)
         {
+
         }
     }
 }
