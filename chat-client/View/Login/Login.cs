@@ -14,10 +14,29 @@ namespace chat_client.View.Login
     {
         private string username;
         private string password;
+
+        private bool isPasswordVisible = false;
         public Login()
         {
             InitializeComponent();
+
         }
 
+        private void togglePasswordVisibility(object sender, EventArgs e)
+        {
+            //update input label visibility
+            loginPassword.UseSystemPasswordChar = !isPasswordVisible;
+
+            //update variable state
+            isPasswordVisible = !isPasswordVisible;
+        }
+
+        private void handleCreateAccount(object sender, EventArgs e)
+        {
+            Register.Register registerForm = new Register.Register();
+
+            this.Hide();
+            registerForm.ShowDialog();
+        }
     }
 }

@@ -36,6 +36,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -77,6 +78,7 @@
             this.loginUsername.Name = "loginUsername";
             this.loginUsername.Size = new System.Drawing.Size(252, 20);
             this.loginUsername.TabIndex = 4;
+            // 
             // loginPassword
             // 
             this.loginPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -104,6 +106,7 @@
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox2.TabIndex = 7;
             this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.togglePasswordVisibility);
             // 
             // pictureBox1
             // 
@@ -115,11 +118,23 @@
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Lucida Console", 10F);
+            this.label4.Location = new System.Drawing.Point(191, 434);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(119, 14);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Create Account";
+            this.label4.Click += new System.EventHandler(this.handleCreateAccount);
+            // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(351, 480);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.loginPassword);
@@ -148,5 +163,6 @@
         private System.Windows.Forms.TextBox loginPassword;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Label label4;
     }
 }
