@@ -4,39 +4,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Security;
+using System.Net;
+using System.Net.Sockets;
 
 namespace chat_server.connection
 {
     internal class Database
     {
         private MySqlConnection connection;
-        private string server;
-        private string database;
-        private string uid;
-        private string password;
 
-        string connectionString;
-
+        // Error codes
         const int CANNOT_CONNECT_TO_THE_SERVER = 0;
         const int INVALID_USERNAME_PASSWORD = 1045;
+
+        private string connectionString = string.Format(
+                   "server={0};uid={1};pwd={2};database={3}",
+                   "localhost",
+                   "root",
+                   "",
+                   "chatapp"
+               );
+
 
         //Constructor
         public Database()
         {
-            Initialize();
-        }
+            if(this.connection != null)
+            {
+                this.connection.Close();
+            }
 
-        //Initialize values
-        private void Initialize()
-        {
-            server = "localhost";
-            database = "chat-app";
-            uid = "root";
-            password = "";
+            // create connection
+            this.connection = new MySqlConnection(connectionString);
 
-            connectionString = $"SERVER={server};DATABASE={database};UID={uid};PASSWORD={password};";
-
-            connection = new MySqlConnection(connectionString);
+            //open connection
+            this.connection.Open();
         }
 
         //open connection to database
@@ -55,13 +58,13 @@ namespace chat_server.connection
                 switch (ex.Number)
                 {
                     case CANNOT_CONNECT_TO_THE_SERVER: // Error code for cannot connect to server
-                        Console.WriteLine("Cannot connect to server. Contact administrator");
+                        Console.WriteLine("[DB] Cannot connect to server. Contact administrator");
                         break;
                     case INVALID_USERNAME_PASSWORD: // Error code for invalid username/password
-                        Console.WriteLine("Invalid username/password, please try again");
+                        Console.WriteLine("[DB] Invalid username/password, please try again");
                         break;
                     default:
-                        Console.WriteLine("An error occurred: " + ex.Message);
+                        Console.WriteLine("[DB] An error occurred: " + ex.Message);
                         break;
                 }
                 return false;
@@ -73,7 +76,7 @@ namespace chat_server.connection
         private bool CloseConnection()
         {
             // confirm if connection is null before closing
-            if(connection == null)
+            if (connection == null)
             {
                 return true;
             }
@@ -87,7 +90,7 @@ namespace chat_server.connection
             // catch any exception that may occur
             catch (MySqlException ex)
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
+                Console.WriteLine("[DB] An error occurred: " + ex.Message);
                 return false;
             }
         }
@@ -112,11 +115,58 @@ namespace chat_server.connection
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
+                Console.WriteLine("[DB] An error occurred: " + ex.Message);
             }
         }
-        
-        //Select statement
-        //public List<string>[] Select() { }
+
+        public async Task<bool> LoginAsync(string username, string password)
+        {
+            string query = "SELECT username, password FROM users WHERE username = @username AND password = @password";
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var cmd = new MySqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@username", username);
+                    cmd.Parameters.AddWithValue("@password", password);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        return await reader.ReadAsync();
+                    }
+                }
+            }
+        }
+
+        public async Task<bool> RegisterAsync(string username, string password, string email)
+        {
+            string query = "INSERT INTO users (username, password, email) VALUES (@username, @password, @email)";
+
+            try
+            {
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@username", username);
+                        cmd.Parameters.AddWithValue("@password", password);
+                        cmd.Parameters.AddWithValue("@email", email);
+
+                        await cmd.ExecuteNonQueryAsync();
+                        return true;
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("[DB] An error occurred: " + ex.Message);
+                return false;
+            }
+        }
     }
+
 }
