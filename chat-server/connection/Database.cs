@@ -96,29 +96,6 @@ namespace chat_server.connection
         }
 
         //method to send any query to the database
-        public void sendDatabasQuery(string query)
-        {
-            try
-            {
-                // confirm if connection is open before executing query
-                if (this.OpenConnection() == false)
-                    this.OpenConnection();
-
-                // create command and assign the query and connection from the constructor
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-
-                //Execute command
-                cmd.ExecuteNonQuery();
-
-                //close connection
-                this.CloseConnection();
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("[DB] An error occurred: " + ex.Message);
-            }
-        }
-
         public async Task<bool> LoginAsync(string username, string password)
         {
             string query = "SELECT username, password FROM users WHERE username = @username AND password = @password";

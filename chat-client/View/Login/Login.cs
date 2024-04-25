@@ -115,7 +115,7 @@ namespace chat_client.View.Login
                                     // Use Invoke to show the message box on the UI thread
                                     this.Invoke((MethodInvoker)delegate
                                     {
-                                        MessageBox.Show("Invalid Username or Password, please retry!");
+                                        MessageBox.Show("Invalid Username or Password, please retry!", "Authenticate", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     });
                                     break;
                             }
@@ -144,13 +144,28 @@ namespace chat_client.View.Login
 
         private void OnClientClose(object sender, FormClosedEventArgs e)
         {
-            byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
-            networkStream.Write(eot, 0, eot.Length);
-
-            networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
-            networkStream.Close();
-            tcpClient.Close();
+            try
+            {
+                // Send EOT to the server to close the connection
+                byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
+                if (networkStream.CanWrite)
+                {
+                    networkStream.Write(eot, 0, eot.Length);
+                }
+                // The server will close the connection upon receiving EOT
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error while closing connection: {ex.Message}");
+            }
+            finally
+            {
+                // Close the network stream and the TCP client
+                networkStream?.Close();
+                tcpClient?.Close();
+            }
         }
+
 
         private void HandleCloseClient(object sender, FormClosingEventArgs e)
         {
