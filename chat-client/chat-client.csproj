@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ProtocolSI">
+      <HintPath>..\ProtocolSI_alunos\ProtocolSI.dll</HintPath>
+    </Reference>
     <Reference Include="protoip">
       <HintPath>..\protoip.dll</HintPath>
     </Reference>
