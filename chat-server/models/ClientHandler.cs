@@ -36,7 +36,6 @@ namespace chat_server.models
         {
             NetworkStream networkStream = client.GetStream();
             ProtocolSI protocolSI = new ProtocolSI();
-            ClientCount clientCount = new ClientCount();
 
             try
             {
@@ -91,7 +90,7 @@ namespace chat_server.models
                             break;
 
                         case ProtocolSICmdType.EOT:
-
+                            ClientCount clientCount = new ClientCount();
                             clientCount.Decrement();
 
                             Console.WriteLine("[SERVER]: Client " + id + " disconnected");
