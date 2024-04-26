@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <Reference Include="ProtocolSI">
       <HintPath>..\ProtocolSI_alunos\ProtocolSI.dll</HintPath>
     </Reference>
@@ -53,6 +54,10 @@
     <Reference Include="ProtocolSI">
       <HintPath>..\ProtocoloISI\ProtocolSI.dll</HintPath>
 >>>>>>> master
+=======
+    <Reference Include="protoip">
+      <HintPath>..\protoip.dll</HintPath>
+>>>>>>> 5413157e61c60d1d6d6ed9de6efdae827e71b385
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />

@@ -21,25 +21,6 @@ namespace chat_server
 
         static void Main(string[] args)
         {
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
-            ClientCount clientCount = new ClientCount();
-
-            TcpListener listener = new TcpListener(endPoint);
-            listener.Start();
-
-            Console.WriteLine("Server started on port " + PORT);
-            Console.WriteLine("Waiting for clients...");
-
-            while (true)
-            {
-                TcpClient client = listener.AcceptTcpClient();
-
-
-                clientCount.Increment();
-                ClientHandler clientHandler = new ClientHandler(client, clientCount.GetCount());
-                Console.WriteLine("Client " + clientCount.GetCount() + " connected");
-
-                // test new comment
 
                 clientHandler.Handle();
             }

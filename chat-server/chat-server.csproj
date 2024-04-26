@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <Reference Include="ProtocolSI">
       <HintPath>..\ProtocolSI_alunos\ProtocolSI.dll</HintPath>
 =======
@@ -63,6 +64,8 @@
       <HintPath>..\ProtocoloISI\ProtocolSI.dll</HintPath>
 >>>>>>> master
     </Reference>
+=======
+>>>>>>> 5413157e61c60d1d6d6ed9de6efdae827e71b385
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -105,11 +108,15 @@
   </ItemGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     <Compile Include="connection\Database.cs" />
     <Compile Include="models\ClientCount.cs" />
     <Compile Include="models\ClientHandler.cs" />
 >>>>>>> master
+=======
+    <Compile Include="logs\Logs.cs" />
+>>>>>>> 5413157e61c60d1d6d6ed9de6efdae827e71b385
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
