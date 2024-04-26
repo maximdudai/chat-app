@@ -39,6 +39,8 @@ namespace chat_server
                 ClientHandler clientHandler = new ClientHandler(client, clientCount.GetCount());
                 Console.WriteLine("Client " + clientCount.GetCount() + " connected");
 
+                // test new comment
+
                 clientHandler.Handle();
             }
         }
