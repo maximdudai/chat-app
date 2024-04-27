@@ -19,6 +19,7 @@ namespace chat_server.models
         private string username;
         private string password;
         private string command;
+        private string email;
 
         public ClientHandler(TcpClient client, int id)
         {
@@ -63,6 +64,7 @@ namespace chat_server.models
                             command = dataSplit[0];
                             username = dataSplit[1];
                             password = dataSplit[2];
+                            email = dataSplit[3];
 
                             switch (command)
                             {
@@ -77,7 +79,7 @@ namespace chat_server.models
                                     break;
                                 case "register":
                                     // Replace with an async version of the database register method
-                                    bool registerSuccess = await database.RegisterAsync(username, password, "");
+                                    bool registerSuccess = await database.RegisterAsync(username, password, email);
 
                                     ack = protocolSI.Make(ProtocolSICmdType.ACK, Encoding.UTF8.GetBytes(registerSuccess ? "success" : "fail"));
 
