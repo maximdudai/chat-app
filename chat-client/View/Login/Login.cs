@@ -24,8 +24,12 @@ namespace chat_client.View.Login
         NetworkStream networkStream;
         TcpClient tcpClient;
         ProtocolSI protocolSI;
-
         private bool isPasswordVisible = false;
+
+        private int id { get; set; }
+        private string username { get; set; }
+        private string password { get; set; }
+
         public Login()
         {
             InitializeComponent();
@@ -60,8 +64,9 @@ namespace chat_client.View.Login
         {
             // prevent client to force login multiple times
             loginButton.Enabled = false;
-            string username = loginUsername.Text;
-            string password = loginPassword.Text;
+            this.username = loginUsername.Text;
+            this.password = loginPassword.Text;
+
             var authRegex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9_]+$");
 
 
@@ -115,28 +120,30 @@ namespace chat_client.View.Login
                     switch (protocolSI.GetCmdType())
                     {
                         case ProtocolSICmdType.ACK:
-                            string data = Encoding.UTF8.GetString(protocolSI.GetData());
-
-                            switch (data)
                             {
-                                case "success":
-                                    // Use Invoke to update the UI on the UI thread
-                                    this.Invoke((MethodInvoker)delegate
-                                    {
-                                        Chat.Chat chat = new Chat.Chat();
-                                        chat.Show();
-                                        this.Hide();
-                                    });
-                                    break;
-                                case "fail":
-                                    // Use Invoke to show the message box on the UI thread
+                                var data = Encoding.UTF8.GetString(protocolSI.GetData());
+
+                                if (!int.TryParse(data, out int result))
+                                {
                                     this.Invoke((MethodInvoker)delegate
                                     {
                                         MessageBox.Show("Invalid Username or Password, please retry!", "Authenticate", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     });
-                                    break;
+                                    return;
+                                }
+
+
+                                this.id = int.Parse(data);
+
+                                this.Invoke((MethodInvoker)delegate
+                                {
+                                    Chat.Chat chat = new Chat.Chat(this.id, this.username);
+                                    chat.Show();
+                                    this.Hide();
+                                });
+                                break;
                             }
-                            break;
+
 
                         case ProtocolSICmdType.EOT:
                             Console.WriteLine("Client disconnected");

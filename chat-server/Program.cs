@@ -18,12 +18,9 @@ namespace chat_server
     internal class Program
     {
         private const int PORT = 5555;
-
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
-            ClientCount clientCount = new ClientCount();
-
             TcpListener listener = new TcpListener(endPoint);
             listener.Start();
 
@@ -32,13 +29,14 @@ namespace chat_server
 
             while (true)
             {
-                TcpClient client = listener.AcceptTcpClient();
+                TcpClient client = await listener.AcceptTcpClientAsync();
+                ClientCount clientCount = new ClientCount();
+
                 clientCount.Increment();
 
                 ClientHandler clientHandler = new ClientHandler(client, clientCount.GetCount());
-                Console.WriteLine("Client " + clientCount.GetCount() + " connected");
 
-                clientHandler.Handle();
+                Task task = Task.Run(() => clientHandler.Handle());
             }
         }
     }

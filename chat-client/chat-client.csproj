@@ -62,7 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="models\User.cs" />
+    <Compile Include="models\ChatModel.cs" />
     <Compile Include="View\Chat\Chat.cs">
       <SubType>Form</SubType>
     </Compile>
