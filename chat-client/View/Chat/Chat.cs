@@ -9,13 +9,14 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using EI.SI;
 
 namespace chat_client.View.Chat
 {
     public partial class Chat : Form
     {
 
-        private const int PORT = 10000;
+        private const int PORT = 5555;
         NetworkStream networkStream;
         TcpClient tcpClient;
         ProtocolSI protocolSI;
@@ -32,8 +33,8 @@ namespace chat_client.View.Chat
 
         private void buttonSend_Click(object sender, EventArgs e)
         {
-            string msg = textBoxMessage.Text;
-            textBoxMessage.Clear();
+            string msg = messageTextBox.Text;
+            messageTextBox.Clear();
             byte[] packet = protocolSI.Make(ProtocolSICmdType.DATA, msg);
             networkStream.Write(packet, 0, packet.Length);
             while (protocolSI.GetCmdType() != ProtocolSICmdType.ACK)
@@ -57,11 +58,6 @@ namespace chat_client.View.Chat
         {
             CloseClient();
             this.Close();
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            CloseClient();
         }
     }
 }

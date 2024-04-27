@@ -35,8 +35,8 @@
             this.loginPassword = new System.Windows.Forms.TextBox();
             this.loginButton = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.registerButton = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -109,16 +109,6 @@
             this.pictureBox2.TabStop = false;
             this.pictureBox2.Click += new System.EventHandler(this.togglePasswordVisibility);
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::chat_client.Properties.Resources.chat_app;
-            this.pictureBox1.Location = new System.Drawing.Point(102, 74);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(158, 158);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            // 
             // registerButton
             // 
             this.registerButton.AutoSize = true;
@@ -130,11 +120,22 @@
             this.registerButton.Text = "Create Account";
             this.registerButton.Click += new System.EventHandler(this.handleCreateAccount);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::chat_client.Properties.Resources.chat_app;
+            this.pictureBox1.Location = new System.Drawing.Point(82, 53);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(201, 184);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 9;
+            this.pictureBox1.TabStop = false;
+            // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(351, 480);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.registerButton);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.loginButton);
@@ -143,7 +144,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pictureBox1);
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login";
@@ -156,8 +156,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
@@ -166,5 +164,6 @@
         private System.Windows.Forms.Button loginButton;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label registerButton;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

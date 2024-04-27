@@ -74,7 +74,6 @@
             this.sendMessagePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.sendMessagePictureBox.TabIndex = 2;
             this.sendMessagePictureBox.TabStop = false;
-            // 
             // chatConnectionListBox
             // 
             this.chatConnectionListBox.BackColor = System.Drawing.SystemColors.ScrollBar;

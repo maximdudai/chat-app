@@ -54,17 +54,34 @@ namespace chat_client.View.Login
             Register.Register registerForm = new Register.Register();
 
             this.Hide();
-            registerForm.ShowDialog();
+            registerForm.Show();
         }
         private async void loginButton_Click(object sender, EventArgs e)
         {
-            loginButton.Enabled = false; // Prevent further clicks
+            // prevent client to force login multiple times
+            loginButton.Enabled = false;
             string username = loginUsername.Text;
             string password = loginPassword.Text;
+            var authRegex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9_]+$");
+
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Please fill in all fields", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                loginButton.Enabled = true;
+                return;
+            }
+
+            if (!authRegex.IsMatch(username) || !authRegex.IsMatch(password))
+            {
+                MessageBox.Show("Username or Password can only contain letters, numbers, and underscores", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                loginButton.Enabled = true;
+                return;
+            }
 
             try
             {
-                // Assemble the data packet for login
+                // format data to send to server
                 string dataToSend = $"login:{username}:{password}";
                 byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(dataToSend));
 
@@ -106,9 +123,9 @@ namespace chat_client.View.Login
                                     // Use Invoke to update the UI on the UI thread
                                     this.Invoke((MethodInvoker)delegate
                                     {
-                                        Chat.Chat chatForm = new Chat.Chat();
+                                        Chat.Chat chat = new Chat.Chat();
+                                        chat.Show();
                                         this.Hide();
-                                        chatForm.ShowDialog();
                                     });
                                     break;
                                 case "fail":
@@ -171,5 +188,6 @@ namespace chat_client.View.Login
         {
             this.OnClientClose(sender, null);
         }
+
     }
 }

@@ -33,13 +33,10 @@ namespace chat_server
             while (true)
             {
                 TcpClient client = listener.AcceptTcpClient();
-
-
                 clientCount.Increment();
+
                 ClientHandler clientHandler = new ClientHandler(client, clientCount.GetCount());
                 Console.WriteLine("Client " + clientCount.GetCount() + " connected");
-
-                // test new comment
 
                 clientHandler.Handle();
             }
