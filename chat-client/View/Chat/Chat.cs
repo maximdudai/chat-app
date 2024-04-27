@@ -20,6 +20,7 @@ namespace chat_client.View.Chat
         NetworkStream networkStream;
         TcpClient tcpClient;
         ProtocolSI protocolSI;
+        private List<string> messageList;
 
         public Chat()
         {
@@ -29,6 +30,7 @@ namespace chat_client.View.Chat
             tcpClient.Connect(endPoint);
             networkStream = tcpClient.GetStream();
             protocolSI = new ProtocolSI();
+            messageList = new List<string>();
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
@@ -58,6 +60,39 @@ namespace chat_client.View.Chat
         {
             CloseClient();
             this.Close();
+        }
+
+        private void sendButton_Click(object sender, EventArgs e)
+        {
+            string mensagem = messageTextBox.Text;
+
+            if (string.IsNullOrEmpty(mensagem))
+            {
+                MessageBox.Show("Escreva sua mensagem, a caixa de texto não pode estar vazia");
+                return;
+            }
+
+            // Adiciona a mensagem à lista de mensagens
+            messageList.Add(mensagem);
+
+            // Atualiza a ListBox com as mensagens atualizadas
+            updateChatMListBox();
+
+            // Limpa a TextBox depois do envio da mensagem
+            messageTextBox.Clear();
+        }
+        private void updateChatMListBox()
+        {
+            chatMessageListBox.DataSource = null;
+            chatMessageListBox.DataSource = messageList;
+        }
+
+        private void handleLoginAccount(object sender, EventArgs e)
+        {
+            Login.Login loginForm = new Login.Login();
+
+            this.Hide();
+            loginForm.Show();
         }
     }
 }
