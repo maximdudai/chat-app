@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using chat_client.View.Login;
+using chat_client.View.Register;
 
 namespace chat_client
 {
@@ -17,7 +18,7 @@ namespace chat_client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Login());
+            Application.Run(new Register());
         }
     }
 }
