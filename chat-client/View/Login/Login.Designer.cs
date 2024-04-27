@@ -28,16 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Login));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.loginUsername = new System.Windows.Forms.TextBox();
             this.loginPassword = new System.Windows.Forms.TextBox();
             this.loginButton = new System.Windows.Forms.Button();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.registerButton = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -98,17 +97,6 @@
             this.loginButton.UseVisualStyleBackColor = true;
             this.loginButton.Click += new System.EventHandler(this.loginButton_Click);
             // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = global::chat_client.Properties.Resources.password;
-            this.pictureBox2.Location = new System.Drawing.Point(279, 369);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(31, 29);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 7;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.togglePasswordVisibility);
-            // 
             // registerButton
             // 
             this.registerButton.AutoSize = true;
@@ -122,10 +110,10 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::chat_client.Properties.Resources.chat_app;
-            this.pictureBox1.Location = new System.Drawing.Point(82, 53);
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(101, 65);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(201, 184);
+            this.pictureBox1.Size = new System.Drawing.Size(156, 156);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 9;
             this.pictureBox1.TabStop = false;
@@ -137,7 +125,6 @@
             this.ClientSize = new System.Drawing.Size(351, 480);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.registerButton);
-            this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.loginButton);
             this.Controls.Add(this.loginPassword);
             this.Controls.Add(this.loginUsername);
@@ -148,7 +135,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleCloseClient);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -162,7 +148,6 @@
         private System.Windows.Forms.TextBox loginUsername;
         private System.Windows.Forms.TextBox loginPassword;
         private System.Windows.Forms.Button loginButton;
-        private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label registerButton;
         private System.Windows.Forms.PictureBox pictureBox1;
     }
