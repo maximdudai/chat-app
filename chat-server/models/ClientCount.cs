@@ -23,6 +23,9 @@ namespace chat_server.models
         public void Decrement()
         {
             count--;
+
+            if (count < 0)
+                count = 0;
         }
     }
 }

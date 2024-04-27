@@ -21,6 +21,13 @@ namespace chat_client.View.Register
         NetworkStream networkStream;
         TcpClient tcpClient;
         ProtocolSI protocolSI;
+
+        private string email { get; set; }
+        private string username { get; set; }
+
+        private int id { get; set; }
+        private string password { get; set; }
+
         public Register()
         {
             InitializeComponent();
@@ -48,9 +55,10 @@ namespace chat_client.View.Register
         {
             //registerButton.Enabled = false; // Prevent further clicks
 
-            string email = registerEmail.Text;
-            string username = registerUsername.Text;
-            string password = registerPassword.Text;
+            this.email = registerEmail.Text;
+            this.username = registerUsername.Text;
+            this.password = registerPassword.Text;
+
             string passConfirmation = passwordConfirmation.Text;
             bool checkBoxAgree = checkBoxRegister.Checked;
 
@@ -97,10 +105,6 @@ namespace chat_client.View.Register
 
             //Validar se já existe o username e email na bd
 
-            
-
-
-            //DO LOGIN--------------------------------------------------------------------------------------
             try
             {
                 // Assemble the data packet for register
@@ -138,34 +142,31 @@ namespace chat_client.View.Register
                     switch (protocolSI.GetCmdType())
                     {
                         case ProtocolSICmdType.ACK:
-                            string data = Encoding.UTF8.GetString(protocolSI.GetData());
+                            var data = Encoding.UTF8.GetString(protocolSI.GetData());
 
-                            switch (data)
+                            if (!int.TryParse(data, out int result))
                             {
-                                case "success":
-                                    // Use Invoke to update the UI on the UI thread
-                                    this.Invoke((MethodInvoker)delegate
-                                    {
-                                        Chat.Chat chatForm = new Chat.Chat();
-                                        this.Hide();
-                                        chatForm.ShowDialog();
-                                    });
-                                    break;
-                                case "fail":
-                                    // Use Invoke to show the message box on the UI thread
-                                    //separar por erros
-                                    this.Invoke((MethodInvoker)delegate
-                                    {
-                                        MessageBox.Show("Email or Username already used, please retry!", "Create Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    });
-                                    break;
+                                this.Invoke((MethodInvoker)delegate
+                                {
+                                    MessageBox.Show("A user with this username already exists!", "Authenticate", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                });
+                                return;
                             }
-                            break;
 
+                            this.id = int.Parse(data);
+
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                Chat.Chat chat = new Chat.Chat(id, this.username);
+                                chat.Show();
+                                this.Hide();
+                            });
+
+                            break;
+                            
                         case ProtocolSICmdType.EOT:
                             Console.WriteLine("Client disconnected");
                             break;
-
                         default:
                             Console.WriteLine("Invalid command received");
                             break;
