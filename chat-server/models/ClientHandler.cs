@@ -64,7 +64,10 @@ namespace chat_server.models
                             command = dataSplit[0];
                             username = dataSplit[1];
                             password = dataSplit[2];
-                            email = dataSplit[3];
+                            if(dataSplit.Length > 3)
+                            {
+                                email = dataSplit[3];
+                            }
 
                             switch (command)
                             {
