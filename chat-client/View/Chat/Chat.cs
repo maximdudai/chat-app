@@ -140,15 +140,20 @@ namespace chat_client.View.Chat
             Point location = this.PointToScreen(new Point(screen_x, screen_y));
 
             emojiForm.Location = location;
+
+            // Add event listener to get the selected emoji
             emojiForm.EmojiSelected += EmojiForm_EmojiSelected;
-            emojiForm.FormClosed += (s, args) => emojiForm.EmojiSelected -= EmojiForm_EmojiSelected; // Unsubscribe to avoid memory leaks
-            emojiForm.Show(); // Use Show instead of ShowDialog to keep focus on the text box
+            
+            // Remove event listener to avoid memory leaks
+            emojiForm.FormClosed += (s, args) => emojiForm.EmojiSelected -= EmojiForm_EmojiSelected; 
+            
+            emojiForm.Show(); 
 
         }
 
         private void EmojiForm_EmojiSelected(string emoji)
         {
-            Console.WriteLine("emoji: " + emoji);
+            // Append the selected emoji to the messageTextBox
             messageTextBox.AppendText(emoji);
         }
     }

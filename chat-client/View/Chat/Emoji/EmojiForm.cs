@@ -36,11 +36,13 @@ namespace chat_client.View.Chat.Emoji
                     Location = new Point(x, y),
                     Size = new Size(40, 40)
                 };
-                emojiButton.Click += EmojiButton_Click;  // Attach the event handler
+                // attach the event handler to the button and get it to chat form
+                emojiButton.Click += EmojiButton_Click;
                 this.Controls.Add(emojiButton);
 
                 x += spacing;
-                if (x > this.ClientSize.Width - 40) // Wrap to the next line
+                // If the button is out of the form size, move to the next line
+                if (x > this.ClientSize.Width - 40)
                 {
                     x = 10;
                     y += spacing;
