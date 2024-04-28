@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using EI.SI;
 using chat_client.models;
+using chat_client.View.Chat.Emoji;
 
 namespace chat_client.View.Chat
 {
@@ -122,6 +123,38 @@ namespace chat_client.View.Chat
         private void handleFormClosing(object sender, FormClosingEventArgs e)
         {
             this.CloseClient();
+        }
+
+        private void emojiListButton_Click(object sender, EventArgs e)
+        {
+            EmojiForm emojiForm = new EmojiForm();
+
+            emojiForm.StartPosition = FormStartPosition.Manual;
+            // Position Form2 to open at the lower right corner of emojiListButton
+
+            //get chat form location
+            int screen_x = this.Location.X + this.Width - 725;
+            int screen_y = this.Location.Y - 50;
+
+            // set emoji form location
+            Point location = this.PointToScreen(new Point(screen_x, screen_y));
+
+            emojiForm.Location = location;
+
+            // Add event listener to get the selected emoji
+            emojiForm.EmojiSelected += EmojiForm_EmojiSelected;
+            
+            // Remove event listener to avoid memory leaks
+            emojiForm.FormClosed += (s, args) => emojiForm.EmojiSelected -= EmojiForm_EmojiSelected; 
+            
+            emojiForm.Show(); 
+
+        }
+
+        private void EmojiForm_EmojiSelected(string emoji)
+        {
+            // Append the selected emoji to the messageTextBox
+            messageTextBox.AppendText(emoji);
         }
     }
 }
