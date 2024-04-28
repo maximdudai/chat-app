@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using EI.SI;
 using chat_client.models;
 using chat_client.View.Chat.Emoji;
+using System.IO;
 
 namespace chat_client.View.Chat
 {
@@ -42,22 +43,53 @@ namespace chat_client.View.Chat
 
         private async void buttonSend_Click(object sender, EventArgs e)
         {
-            try
-            {
-                // Obter a mensagem escrita pelo cliente
-                string msg = messageTextBox.Text;
-                messageTextBox.Clear();
+            int retryCount = 0;
+            int maxRetries = 3; // Maximum number of retries
+            bool messageSent = false; // Flag to check if the message has been sent successfully
 
-                // formatar a mensagem para ser enviada ao servidor
-                string sendToServer = $"chat:{this.username}:{this.id}:{msg}";
-                byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(sendToServer));
-                await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
-            }
-            catch (Exception ex)
+            // Retry sending the message if it fails
+            while (!messageSent && retryCount < maxRetries)
             {
-                Console.WriteLine("[CLIENT]: An error ocured: " + ex.Message);
+                try
+                {
+                    // Get the message written by the client
+                    string msg = messageTextBox.Text;
+                    messageTextBox.Clear();
+
+                    // Format the message to be sent to the server
+                    string sendToServer = $"chat:{this.username}:{this.id}:{msg}";
+                    byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(sendToServer));
+
+                    if (networkStream.CanWrite)
+                    {
+                        await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
+                        messageSent = true; // Set the flag if send is successful
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Network stream is not writable.");
+                    }
+                }
+                catch (IOException ex)
+                {
+                    retryCount++; // Increment retry count
+                    Console.WriteLine($"[CLIENT]: Retry {retryCount} after IO exception: {ex.Message}");
+                    // Optionally add a delay here if needed
+                    await Task.Delay(1000); // Delay before retrying
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[CLIENT]: An error occurred: " + ex.Message);
+                    break; // Break the loop on non-recoverable errors
+                }
+            }
+
+            if (!messageSent)
+            {
+                Console.WriteLine("[CLIENT]: Failed to send message after retries.");
             }
         }
+
 
         private void CloseClient()
         {
@@ -66,8 +98,7 @@ namespace chat_client.View.Chat
                 // Enviar um pacote EOT para o servidor
                 byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
                 networkStream.Write(eot, 0, eot.Length);
-
-                networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                
             } 
             catch (Exception e)
             {
@@ -112,12 +143,12 @@ namespace chat_client.View.Chat
 
         private void handleLoginAccount(object sender, EventArgs e)
         {
-            Login.Login loginForm = new Login.Login();
-
             this.CloseClient();
-            this.Hide();
-            
+
+            Login.Login loginForm = new Login.Login();
             loginForm.Show();
+
+            this.Hide();
         }
 
         private void handleFormClosing(object sender, FormClosingEventArgs e)
