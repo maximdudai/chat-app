@@ -20,7 +20,7 @@ namespace chat_server
         private const int PORT = 5555;
         static async Task Main(string[] args)
         {
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, PORT);
             TcpListener listener = new TcpListener(endPoint);
             listener.Start();
 

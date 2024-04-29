@@ -14,11 +14,9 @@ namespace chat_server.models
     internal class ClientHandler
     {
         private TcpClient client;
-
         private int id;
         private string username;
         private string password;
-        private string command;
         private string email;
 
         public ClientHandler(TcpClient client, int id)
@@ -35,110 +33,105 @@ namespace chat_server.models
 
         private async Task HandleClient()
         {
-            NetworkStream networkStream = client.GetStream();
-            ProtocolSI protocolSI = new ProtocolSI();
-            ClientCount clientCount = new ClientCount();
-
-            try
+            using (NetworkStream networkStream = client.GetStream())
             {
-                while (protocolSI.GetCmdType() != ProtocolSICmdType.EOT)
+                ProtocolSI protocolSI = new ProtocolSI();
+                try
                 {
-                    int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
-                    if (bytesRead == 0)
-                        break;
-
-                    // Extract the username and password from the data packet
-                    string data = Encoding.UTF8.GetString(protocolSI.GetData());
-
-                    byte[] ack;
-
-                    if (data.Length == 0)
-                        return;
-
-                    // Split the data into an array to separate the command, username, and password
-                    string[] dataSplit = data.Split(':');
-
-                    // Get the command from the data packet
-                    command = dataSplit[0];
-                    this.username = dataSplit[1];
-
-                    Database database = new Database(); // Make sure Database methods are async as 
-
-                    switch (command)
+                    while (true)
                     {
-                        case "chat":
-                            this.id = int.Parse(dataSplit[2]);
-                            string message = dataSplit[3];
+                        int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                        byte[] ack;
 
-                            // Send the message to the database
-                            await database.InsertChatLog(id, this.username, message);
+                        // If the client disconnected, close the network s
+                        // ream and client
+                        if (bytesRead == 0)
+                        {
+                            Console.WriteLine("[SERVER]: Client " + id + " disconnected");
+                            networkStream?.Close();
+                            client?.Close();
                             break;
-                        case "login":
+                        }
 
-                            this.password = dataSplit[2];
-                            // Verify if user exists in the database
-                            // if method return is not null, user exists
-                            var userID = await database.LoginAsync(username, password);
+                        // Set the buffer to the protocolSI object
+                        protocolSI.SetBuffer(protocolSI.Buffer);
 
-                            // Convert the ID to a byte array
-                            byte[] user_id = userID.HasValue ? Encoding.UTF8.GetBytes(userID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
+                        string data = Encoding.UTF8.GetString(protocolSI.GetData());
+                        string[] dataSplit = data.Split(':');
+                        if (dataSplit.Length < 2)
+                        {
+                            continue;
+                        }
 
-                            // Send the ID back to the client
-                            ack = protocolSI.Make(ProtocolSICmdType.ACK, user_id);
-                            await networkStream.WriteAsync(ack, 0, ack.Length);
+                        string command = dataSplit[0];
+                        Console.WriteLine("[SERVER]: Command received: " + command);
 
-                            Console.WriteLine("[SERVER]: " + username + " authentication: " + (userID != null ? "success" : "fail"));
-                            break;
-                        case "register":
-                            try
-                            {
+                        switch (command)
+                        {
+                            case "chat":
+                                if (dataSplit.Length < 4) continue; // Ensure all parts are present
+                                
+                                this.username = dataSplit[1];
+                                this.id = int.Parse(dataSplit[2]);
+                                string message = dataSplit[3];
+
+                                Console.WriteLine("[SERVER]: " + this.username + " sent message: " + message);
+
+                                // Send the message to the database
+                                Database database = new Database();
+                                await database.InsertChatLog(this.id, this.username, message);
+                                break;
+
+                            case "login":
+                                if (dataSplit.Length < 3) continue; // Ensure username and password are present
+                                this.username = dataSplit[1];
                                 this.password = dataSplit[2];
-                                //Check if the email is present in the data
-                                if (dataSplit.Length > 3)
-                                    email = dataSplit[3];
-                                // Execute the register method in the database
-                                // if method return is not null, user already exists
-                                var registerID = await database.RegisterAsync(username, password, email);
+                                database = new Database();
 
-                                // Verify if the registerID is not null
-                                byte[] register_id = registerID.HasValue ? Encoding.UTF8.GetBytes(registerID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
+                                var userID = await database.LoginAsync(username, password);
+                                byte[] user_id = userID.HasValue ? Encoding.UTF8.GetBytes(userID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
 
-                                // Send the ID back to the client
-                                ack = protocolSI.Make(ProtocolSICmdType.ACK, register_id);
+                                ack = protocolSI.Make(ProtocolSICmdType.ACK, user_id);
+
                                 await networkStream.WriteAsync(ack, 0, ack.Length);
+                                Console.WriteLine("[SERVER]: " + username + " authentication: " + (userID.HasValue ? "success" : "fail"));
+                                break;
 
-                                Console.WriteLine("[SERVER]: " + username + " authentication: " + (registerID != null ? "success" : "fail"));
+                            case "register":
+                                try
+                                {
+                                    if (dataSplit.Length < 4) continue; // Ensure all parts are present
+                                    this.username = dataSplit[1];
+                                    this.password = dataSplit[2];
+                                    this.email = dataSplit[3];
 
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("[SERVER]: Error in sending registration ID - " + ex.Message);
-                            }
-                            break;
+                                    database = new Database();
+                                    var registerID = await database.RegisterAsync(username, password, email);
+                                    byte[] register_id = registerID.HasValue ? Encoding.UTF8.GetBytes(registerID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
 
-                        default:
-                            Console.WriteLine("[SERVER]: Invalid command received");
-                            break;
-                            // END OF COMMAND SWITCH
+                                    ack = protocolSI.Make(ProtocolSICmdType.ACK, register_id);
+
+                                    await networkStream.WriteAsync(ack, 0, ack.Length);
+                                    Console.WriteLine("[SERVER]: " + username + " registration: " + (registerID.HasValue ? "success" : "fail"));
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("[SERVER]: Error in sending registration ID - " + ex.Message);
+                                }
+                                break;
+
+                            default:
+                                Console.WriteLine("[SERVER]: Invalid command received");
+                                break;
+                        }
                     }
-                    break;
                 }
-
-                if(protocolSI.GetCmdType() == ProtocolSICmdType.EOT)
+                catch (Exception ex)
                 {
-                    clientCount.Decrement();
-                    Console.WriteLine("[SERVER]: Client " + id + " disconnected");
+                    Console.WriteLine($"[SERVER]: An error occurred with client {id}: {ex.Message}");
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[SERVER]: An error occurred with client {id}: {ex.Message}");
-            }
-            finally
-            {
-                networkStream?.Close();
-                client?.Close();
             }
         }
     }
+
 }

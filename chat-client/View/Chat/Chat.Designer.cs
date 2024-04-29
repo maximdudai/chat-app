@@ -36,11 +36,11 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.messageTextBox = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.emojiListButton = new System.Windows.Forms.PictureBox();
             this.sendButton = new System.Windows.Forms.PictureBox();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.emojiListButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sendButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.SuspendLayout();
@@ -102,10 +102,9 @@
             // messageTextBox
             // 
             this.messageTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.messageTextBox.Location = new System.Drawing.Point(28, 489);
-            this.messageTextBox.Multiline = true;
+            this.messageTextBox.Location = new System.Drawing.Point(28, 495);
             this.messageTextBox.Name = "messageTextBox";
-            this.messageTextBox.Size = new System.Drawing.Size(359, 30);
+            this.messageTextBox.Size = new System.Drawing.Size(359, 22);
             this.messageTextBox.TabIndex = 5;
             // 
             // pictureBox1
@@ -118,20 +117,21 @@
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
             // 
-            // pictureBox2
+            // emojiListButton
             // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(391, 490);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(28, 26);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 11;
-            this.pictureBox2.TabStop = false;
+            this.emojiListButton.Image = ((System.Drawing.Image)(resources.GetObject("emojiListButton.Image")));
+            this.emojiListButton.Location = new System.Drawing.Point(391, 493);
+            this.emojiListButton.Name = "emojiListButton";
+            this.emojiListButton.Size = new System.Drawing.Size(28, 26);
+            this.emojiListButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.emojiListButton.TabIndex = 11;
+            this.emojiListButton.TabStop = false;
+            this.emojiListButton.Click += new System.EventHandler(this.emojiListButton_Click);
             // 
             // sendButton
             // 
             this.sendButton.Image = ((System.Drawing.Image)(resources.GetObject("sendButton.Image")));
-            this.sendButton.Location = new System.Drawing.Point(425, 489);
+            this.sendButton.Location = new System.Drawing.Point(425, 493);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(28, 27);
             this.sendButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -158,7 +158,7 @@
             this.ClientSize = new System.Drawing.Size(484, 561);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.sendButton);
-            this.Controls.Add(this.pictureBox2);
+            this.Controls.Add(this.emojiListButton);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -172,7 +172,7 @@
             this.Text = "Chat";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.handleFormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.emojiListButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sendButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.ResumeLayout(false);
@@ -193,7 +193,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox messageTextBox;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox emojiListButton;
         private System.Windows.Forms.PictureBox sendButton;
         private System.Windows.Forms.PictureBox pictureBox4;
     }
