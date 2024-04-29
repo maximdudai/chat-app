@@ -1,4 +1,4 @@
-﻿namespace chat_client.View.Register
+namespace chat_client.View.Register
 {
     partial class Register
     {

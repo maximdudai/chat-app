@@ -118,7 +118,8 @@ namespace chat_client.View.Chat
 
             if (string.IsNullOrEmpty(mensagem))
             {
-                MessageBox.Show("Escreva sua mensagem, a caixa de texto não pode estar vazia");
+                MessageBox.Show("Write your message!", "Empty field", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("Empty field: write your message");
                 return;
             }
 

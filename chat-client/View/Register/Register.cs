@@ -182,7 +182,36 @@ namespace chat_client.View.Register
                 });
             }
         }
-        
-        //DO LOGIN--------------------------------------------------------------------------------------
+
+        private void OnClientClose(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                // Send EOT to the server to close the connection
+                byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
+                if (networkStream.CanWrite)
+                {
+                    networkStream.Write(eot, 0, eot.Length);
+                }
+                // The server will close the connection upon receiving EOT
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error while closing connection: {ex.Message}");
+            }
+            finally
+            {
+                // Close the network stream and the TCP client
+                networkStream?.Close();
+                tcpClient?.Close();
+            }
+        }
+
+
+        private void HandleCloseClient(object sender, FormClosingEventArgs e)
+        {
+            this.OnClientClose(sender, null);
+        }
+
     }
 }
