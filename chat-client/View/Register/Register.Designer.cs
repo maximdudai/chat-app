@@ -1,4 +1,4 @@
-﻿namespace chat_client.View.Register
+namespace chat_client.View.Register
 {
     partial class Register
     {
@@ -199,6 +199,7 @@
             this.Name = "Register";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Register";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleCloseClient);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
