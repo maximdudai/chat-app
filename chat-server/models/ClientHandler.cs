@@ -58,7 +58,12 @@ namespace chat_server.models
 
                         string data = Encoding.UTF8.GetString(protocolSI.GetData());
                         string[] dataSplit = data.Split(':');
-                      
+
+                        // Ensure the data is in the correct format
+                        // When user disconnect, server will receive empty data
+                        // Confirm that code will not execute if dataSplit lenght is less than 2
+                        if (dataSplit.Length < 2)
+                            continue;
 
                         string command = dataSplit[0];
                         Console.WriteLine("[SERVER]: Command received: " + command);
