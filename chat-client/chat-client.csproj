@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\Chat\Connection.cs" />
     <Compile Include="View\Chat\Emoji\EmojiForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -39,6 +39,22 @@ namespace chat_client.View.Chat
             messageList = new List<ChatModel>();
             this.id = id;
             this.username = username;
+
+            // Send connecting message to listBox
+            this.handleChatConnection();
+        }
+
+        public void handleChatConnection(bool option = true)
+        {
+            try
+            {
+                Connection conn = new Connection(this.username, this.id, option);
+
+                chatConnectionListBox.Items.Add(conn);
+            }
+            catch(Exception e) {
+                Console.WriteLine("[CLIENT]: " + e.Message);
+            }
         }
 
         private async void buttonSend_Click(object sender, EventArgs e)
