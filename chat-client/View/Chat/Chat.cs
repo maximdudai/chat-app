@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
@@ -12,6 +8,7 @@ using System.Windows.Forms;
 using EI.SI;
 using chat_client.models;
 using chat_client.View.Chat.Emoji;
+using System.Drawing;
 using System.IO;
 
 namespace chat_client.View.Chat
@@ -42,6 +39,9 @@ namespace chat_client.View.Chat
 
             // Send connecting message to listBox
             this.handleChatConnection();
+
+            // Receive messages from the server
+            Task.Run(async () => await this.ReceiveMessages());
         }
 
         public void handleChatConnection(bool option = true)
@@ -49,10 +49,10 @@ namespace chat_client.View.Chat
             try
             {
                 Connection conn = new Connection(this.username, this.id, option);
-
                 chatConnectionListBox.Items.Add(conn);
             }
-            catch(Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine("[CLIENT]: " + e.Message);
             }
         }
@@ -106,54 +106,51 @@ namespace chat_client.View.Chat
             }
         }
 
-
         private void CloseClient()
         {
             try
             {
-                // Enviar um pacote EOT para o servidor
+                // Send an EOT packet to the server
                 byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
                 networkStream.Write(eot, 0, eot.Length);
-                
-            } 
+            }
             catch (Exception e)
             {
-                Console.WriteLine("[CLIENT]: An error ocured: " + e.Message);
+                Console.WriteLine("[CLIENT]: An error occurred: " + e.Message);
             }
             finally
             {
                 networkStream?.Close();
                 tcpClient?.Close();
             }
-
         }
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            string mensagem = messageTextBox.Text;
+            string message = messageTextBox.Text;
 
-            if (string.IsNullOrEmpty(mensagem))
+            if (string.IsNullOrEmpty(message))
             {
                 MessageBox.Show("Write your message!", "Empty field", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //MessageBox.Show("Empty field: write your message");
                 return;
             }
 
-            // Cria um objeto ChatModel com o id do cliente, username e a mensagem
-            ChatModel chatModel = new ChatModel(this.id, this.username, mensagem);
+            // Create a ChatModel object with the client's ID, username, and message
+            ChatModel chatModel = new ChatModel(this.id, this.username, message);
 
-            // Adiciona a mensagem à lista de mensagens
+            // Add the message to the message list
             messageList.Add(chatModel);
 
-            // Atualiza a ListBox com as mensagens atualizadas
+            // Update the ListBox with the updated messages
             updateChatMListBox();
 
-            // Enviar a mensagem para o servidor
+            // Send the message to the server
             this.buttonSend_Click(sender, e);
         }
+
         private void updateChatMListBox()
         {
-            // Atualiza a ListBox com as mensagens atualizadas
+            // Update the ListBox with the updated messages
             chatMessageListBox.DataSource = null;
             chatMessageListBox.DataSource = messageList;
         }
@@ -191,18 +188,60 @@ namespace chat_client.View.Chat
 
             // Add event listener to get the selected emoji
             emojiForm.EmojiSelected += EmojiForm_EmojiSelected;
-            
-            // Remove event listener to avoid memory leaks
-            emojiForm.FormClosed += (s, args) => emojiForm.EmojiSelected -= EmojiForm_EmojiSelected; 
-            
-            emojiForm.Show(); 
 
+            // Remove event listener to avoid memory leaks
+            emojiForm.FormClosed += (s, args) => emojiForm.EmojiSelected -= EmojiForm_EmojiSelected;
+
+            emojiForm.Show();
         }
 
         private void EmojiForm_EmojiSelected(string emoji)
         {
             // Append the selected emoji to the messageTextBox
             messageTextBox.AppendText(emoji);
+        }
+
+        // Receive messages from the server
+        private async Task ReceiveMessages()
+        {
+            Console.WriteLine("[CLIENT]: Receiving messages from the server - " + this.username);
+            try
+            {
+                while (true)
+                {
+                    int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                    if (bytesRead == 0)
+                    {
+                        Console.WriteLine("[CLIENT]: Server disconnected");
+                        break;
+                    }
+
+                    protocolSI.SetBuffer(protocolSI.Buffer);
+
+                    if (protocolSI.GetDataLength() > 1400)
+                    {
+                        Console.WriteLine("[CLIENT]: Received data exceeds allowable limits. " + protocolSI.GetDataLength());
+                        continue;
+                    }
+
+                    string data = Encoding.UTF8.GetString(protocolSI.GetData(), 0, protocolSI.GetDataLength());
+                    Console.WriteLine("[CLIENT]: Raw data received: " + data);
+
+                    string[] dataSplit = data.Split(':');
+
+                    if (dataSplit[0] == "servermessage")
+                    {
+                        // Format: servermessage:username:message
+                        ChatModel chatModel = new ChatModel(this.id, dataSplit[1], dataSplit[2]);
+                        messageList.Add(chatModel);
+                        Invoke(new Action(updateChatMListBox)); // Ensure UI updates on the main thread
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[CLIENT]: " + e.Message);
+            }
         }
     }
 }

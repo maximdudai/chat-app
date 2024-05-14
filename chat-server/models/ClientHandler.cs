@@ -1,28 +1,30 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using chat_server.connection;
+using chat_server.models;
 using EI.SI;
 
-namespace chat_server.models
+namespace chat_server
 {
-
-    internal class ClientHandler
+    public class ClientHandler
     {
-        private TcpClient client;
+        private readonly TcpClient client;
+        private readonly ConcurrentDictionary<int, TcpClient> connectedClients;
+        
         private int id;
         private string username;
         private string password;
         private string email;
 
-        public ClientHandler(TcpClient client, int id)
+        public ClientHandler(TcpClient client, int id, ConcurrentDictionary<int, TcpClient> connectedClients)
         {
             this.client = client;
             this.id = id;
+            this.connectedClients = connectedClients;
         }
 
         public void Handle()
@@ -31,7 +33,7 @@ namespace chat_server.models
             Task.Run(async () => await HandleClient());
         }
 
-        private async Task HandleClient()
+        public async Task HandleClient()
         {
             using (NetworkStream networkStream = client.GetStream())
             {
@@ -43,11 +45,11 @@ namespace chat_server.models
                         int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
                         byte[] ack;
 
-                        // If the client disconnected, close the network s
-                        // ream and client
+                        // If the client disconnected, close the network stream and client
                         if (bytesRead == 0)
                         {
                             Console.WriteLine("[SERVER]: Client " + id + " disconnected");
+                            connectedClients.TryRemove(id, out _);
                             networkStream?.Close();
                             client?.Close();
                             break;
@@ -60,8 +62,6 @@ namespace chat_server.models
                         string[] dataSplit = data.Split(':');
 
                         // Ensure the data is in the correct format
-                        // When user disconnect, server will receive empty data
-                        // Confirm that code will not execute if dataSplit lenght is less than 2
                         if (dataSplit.Length < 2)
                             continue;
 
@@ -72,7 +72,7 @@ namespace chat_server.models
                         {
                             case "chat":
                                 if (dataSplit.Length < 4) continue; // Ensure all parts are present
-                                
+
                                 this.username = dataSplit[1];
                                 this.id = int.Parse(dataSplit[2]);
                                 string message = dataSplit[3];
@@ -82,6 +82,9 @@ namespace chat_server.models
                                 // Send the message to the database
                                 Database database = new Database();
                                 await database.InsertChatLog(this.id, this.username, message);
+
+                                // Send the message to all clients
+                                await this.SendToClients("servermessage", $"{this.username}:{message}");
                                 break;
 
                             case "login":
@@ -134,6 +137,30 @@ namespace chat_server.models
                 }
             }
         }
-    }
 
+        private async Task SendToClients(string command, string message)
+        {
+            string formatMessageToClient = $"{command}:{message}";
+            byte[] data = Encoding.UTF8.GetBytes(formatMessageToClient);
+            ProtocolSI protocolSI = new ProtocolSI();
+            byte[] encryptData = protocolSI.Make(ProtocolSICmdType.ACK, data);
+
+            foreach (var client in connectedClients.Values)
+            {
+                //prevent sending to the client that sent the message
+                if (client == this.client)
+                    continue;
+
+                NetworkStream networkStream = client.GetStream();
+                try
+                {
+                    await networkStream.WriteAsync(encryptData, 0, encryptData.Length);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[SERVER]: Error sending to client: {e.Message}");
+                }
+            }
+        }
+    }
 }

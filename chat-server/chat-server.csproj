@@ -100,7 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="connection\Database.cs" />
-    <Compile Include="models\ClientCount.cs" />
+    <Compile Include="models\ClientChat.cs" />
     <Compile Include="models\ClientHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

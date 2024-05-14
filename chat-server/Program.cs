@@ -1,23 +1,21 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using chat_server.connection;
 using chat_server.models;
-using EI.SI;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Pqc.Crypto.Utilities;
 
 namespace chat_server
 {
     internal class Program
     {
         private const int PORT = 5555;
+        private static readonly ConcurrentDictionary<int, TcpClient> ConnectedClients = new ConcurrentDictionary<int, TcpClient>();
+        private static int ClientIdCounter = 0;
+
         static async Task Main(string[] args)
         {
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, PORT);
@@ -30,13 +28,13 @@ namespace chat_server
             while (true)
             {
                 TcpClient client = await listener.AcceptTcpClientAsync();
-                ClientCount clientCount = new ClientCount();
+                int clientId = ClientIdCounter++;
 
-                clientCount.Increment();
-
-                ClientHandler clientHandler = new ClientHandler(client, clientCount.GetCount());
-
-                Task task = Task.Run(() => clientHandler.Handle());
+                if (ConnectedClients.TryAdd(clientId, client))
+                {
+                    ClientHandler clientHandler = new ClientHandler(client, clientId, ConnectedClients);
+                    Task task = Task.Run(() => clientHandler.Handle());
+                }
             }
         }
     }
