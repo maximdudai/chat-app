@@ -48,10 +48,16 @@ namespace chat_server
                         // If the client disconnected, close the network stream and client
                         if (bytesRead == 0)
                         {
-                            Console.WriteLine("[SERVER]: Client " + id + " disconnected");
-                            connectedClients.TryRemove(id, out _);
-                            networkStream?.Close();
-                            client?.Close();
+                            //prevent sending inexistent client to other clients
+                            if (connectedClients.ContainsKey(id))
+                            {
+                                await this.SendToClients("connection", $"{this.id}:{this.username}:false");
+
+                                Console.WriteLine("[SERVER]: Client " + id + " disconnected");
+                                connectedClients.TryRemove(id, out _);
+                                networkStream?.Close();
+                                client?.Close();
+                            }
                             break;
                         }
 
@@ -84,7 +90,7 @@ namespace chat_server
                                 await database.InsertChatLog(this.id, this.username, message);
 
                                 // Send the message to all clients
-                                await this.SendToClients("servermessage", $"{this.username}:{message}");
+                                await this.SendToClients("servermessage", $"{this.id}:{this.username}:{message}");
                                 break;
 
                             case "login":
@@ -100,6 +106,9 @@ namespace chat_server
 
                                 await networkStream.WriteAsync(ack, 0, ack.Length);
                                 Console.WriteLine("[SERVER]: " + username + " authentication: " + (userID.HasValue ? "success" : "fail"));
+
+                                // Send the user's connection status to all clients
+                                await this.SendToClients("connection", $"{userID}:{username}:true");
                                 break;
 
                             case "register":
@@ -118,6 +127,9 @@ namespace chat_server
 
                                     await networkStream.WriteAsync(ack, 0, ack.Length);
                                     Console.WriteLine("[SERVER]: " + username + " registration: " + (registerID.HasValue ? "success" : "fail"));
+
+                                    // Send the user's connection status to all clients
+                                    await this.SendToClients("connection", $"{registerID}:{username}:true");
                                 }
                                 catch (Exception ex)
                                 {
