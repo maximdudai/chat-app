@@ -18,24 +18,25 @@ namespace chat_client.View.Chat
         private int id { get; }
         private string username { get; }
         private List<ChatModel> messageList;
-        private List<Connection> connections;
 
         private const int PORT = 5555;
-        NetworkStream networkStream;
-        TcpClient tcpClient;
-        ProtocolSI protocolSI;
+        private static NetworkStream networkStream;
+        private static TcpClient tcpClient;
+        private ProtocolSI protocolSI;
 
         public Chat(int id, string username)
         {
             InitializeComponent();
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
-            tcpClient = new TcpClient();
-            tcpClient.Connect(endPoint);
-            networkStream = tcpClient.GetStream();
+            if (tcpClient == null || !tcpClient.Connected)
+            {
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
+                tcpClient = new TcpClient();
+                tcpClient.Connect(endPoint);
+                networkStream = tcpClient.GetStream();
+            }
             protocolSI = new ProtocolSI();
 
             messageList = new List<ChatModel>();
-            connections = new List<Connection>();
             this.id = id;
             this.username = username;
 
@@ -43,7 +44,7 @@ namespace chat_client.View.Chat
             this.handleChatConnection();
 
             // Receive messages from the server
-            Task.Run(async () => await this.ReceiveDataFromServer());
+            Task.Run(async () => await this.ReceiveMessages());
         }
 
         public void handleChatConnection(bool option = true)
@@ -124,6 +125,7 @@ namespace chat_client.View.Chat
             {
                 networkStream?.Close();
                 tcpClient?.Close();
+                tcpClient = null; // Ensure new connection is created if needed
             }
         }
 
@@ -144,24 +146,17 @@ namespace chat_client.View.Chat
             messageList.Add(chatModel);
 
             // Update the ListBox with the updated messages
-            UpdateChatList();
+            updateChatMListBox();
 
             // Send the message to the server
             this.buttonSend_Click(sender, e);
         }
 
-        private void UpdateChatList()
+        private void updateChatMListBox()
         {
             // Update the ListBox with the updated messages
             chatMessageListBox.DataSource = null;
             chatMessageListBox.DataSource = messageList;
-        }
-
-        private void UpdateConnectionList()
-        {
-            // Update the ListBox with the updated connections
-            chatConnectionListBox.DataSource = null;
-            chatConnectionListBox.DataSource = connections;
         }
 
         private void handleLoginAccount(object sender, EventArgs e)
@@ -211,8 +206,9 @@ namespace chat_client.View.Chat
         }
 
         // Receive messages from the server
-        private async Task ReceiveDataFromServer()
+        private async Task ReceiveMessages()
         {
+            Console.WriteLine("[CLIENT]: Receiving messages from the server - " + this.username);
             try
             {
                 while (true)
@@ -237,31 +233,12 @@ namespace chat_client.View.Chat
 
                     string[] dataSplit = data.Split(':');
 
-                    switch(dataSplit[0])
+                    if (dataSplit[0] == "servermessage")
                     {
-                        case "servermessage":
-                            // Format: servermessage:userid:username:message
-                            int userid = int.Parse(dataSplit[1]);
-
-                            ChatModel chatModel = new ChatModel(userid, dataSplit[2], dataSplit[3]);
-                            messageList.Add(chatModel);
-                            Invoke(new Action(UpdateChatList)); // Ensure UI updates on the main thread // Ensure UI updates on the main thread
-                            break;
-
-                        case "connection":
-                            // Format: connection:userid:username:status
-                            int user = int.Parse(dataSplit[1]);
-                            string username = dataSplit[2];
-                            bool status = bool.Parse(dataSplit[3]);
-
-                            Connection conn = new Connection(username, user, status);
-                            connections.Add(conn);
-                            Invoke(new Action(UpdateConnectionList));
-                            break;
-
-                        default:
-                            break;
-
+                        // Format: servermessage:username:message
+                        ChatModel chatModel = new ChatModel(this.id, dataSplit[1], dataSplit[2]);
+                        messageList.Add(chatModel);
+                        Invoke(new Action(updateChatMListBox)); // Ensure UI updates on the main thread
                     }
                 }
             }
@@ -272,4 +249,3 @@ namespace chat_client.View.Chat
         }
     }
 }
-

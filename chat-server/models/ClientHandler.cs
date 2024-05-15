@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,16 +47,7 @@ namespace chat_server
                         // If the client disconnected, close the network stream and client
                         if (bytesRead == 0)
                         {
-                            //prevent sending inexistent client to other clients
-                            if (connectedClients.ContainsKey(id))
-                            {
-                                await this.SendToClients("connection", $"{this.id}:{this.username}:false");
-
-                                Console.WriteLine("[SERVER]: Client " + id + " disconnected");
-                                connectedClients.TryRemove(id, out _);
-                                networkStream?.Close();
-                                client?.Close();
-                            }
+                            Console.WriteLine("[SERVER]: Client " + id + " disconnected");
                             break;
                         }
 
@@ -90,7 +80,7 @@ namespace chat_server
                                 await database.InsertChatLog(this.id, this.username, message);
 
                                 // Send the message to all clients
-                                await this.SendToClients("servermessage", $"{this.id}:{this.username}:{message}");
+                                await this.SendToClients("servermessage", $"{this.username}:{message}");
                                 break;
 
                             case "login":
@@ -106,9 +96,6 @@ namespace chat_server
 
                                 await networkStream.WriteAsync(ack, 0, ack.Length);
                                 Console.WriteLine("[SERVER]: " + username + " authentication: " + (userID.HasValue ? "success" : "fail"));
-
-                                // Send the user's connection status to all clients
-                                await this.SendToClients("connection", $"{userID}:{username}:true");
                                 break;
 
                             case "register":
@@ -127,9 +114,6 @@ namespace chat_server
 
                                     await networkStream.WriteAsync(ack, 0, ack.Length);
                                     Console.WriteLine("[SERVER]: " + username + " registration: " + (registerID.HasValue ? "success" : "fail"));
-
-                                    // Send the user's connection status to all clients
-                                    await this.SendToClients("connection", $"{registerID}:{username}:true");
                                 }
                                 catch (Exception ex)
                                 {
@@ -147,6 +131,13 @@ namespace chat_server
                 {
                     Console.WriteLine($"[SERVER]: An error occurred with client {id}: {ex.Message}");
                 }
+                finally
+                {
+                    // Ensure client is removed from connectedClients
+                    connectedClients.TryRemove(id, out _);
+                    networkStream?.Close();
+                    client?.Close();
+                }
             }
         }
 
@@ -157,20 +148,23 @@ namespace chat_server
             ProtocolSI protocolSI = new ProtocolSI();
             byte[] encryptData = protocolSI.Make(ProtocolSICmdType.ACK, data);
 
-            foreach (var client in connectedClients.Values)
+            // Send the message to all connected clients
+            foreach (var kvp in connectedClients)
             {
-                //prevent sending to the client that sent the message
-                if (client == this.client)
-                    continue;
+                // prevent sending to the client that sent the message
 
-                NetworkStream networkStream = client.GetStream();
-                try
+                var client = kvp.Value;
+                if (client != null && client.Connected)
                 {
-                    await networkStream.WriteAsync(encryptData, 0, encryptData.Length);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"[SERVER]: Error sending to client: {e.Message}");
+                    NetworkStream networkStream = client.GetStream();
+                    try
+                    {
+                        await networkStream.WriteAsync(encryptData, 0, encryptData.Length);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"[SERVER]: Error sending to client {kvp.Key}: {e.Message}");
+                    }
                 }
             }
         }
