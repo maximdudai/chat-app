@@ -223,7 +223,7 @@ namespace chat_client.View.Chat
                     protocolSI.SetBuffer(protocolSI.Buffer);
 
                     if (protocolSI.GetDataLength() > 1400)
-                    {
+                    { 
                         Console.WriteLine("[CLIENT]: Received data exceeds allowable limits. " + protocolSI.GetDataLength());
                         continue;
                     }
@@ -233,10 +233,15 @@ namespace chat_client.View.Chat
 
                     string[] dataSplit = data.Split(':');
 
+                    // Save received data from there as a variable
+                    int client_id = int.Parse(dataSplit[1]);
+                    string client_username = dataSplit[2];
+                    string client_message = dataSplit[3];
+
                     if (dataSplit[0] == "servermessage")
                     {
                         // Format: servermessage:username:message
-                        ChatModel chatModel = new ChatModel(this.id, dataSplit[1], dataSplit[2]);
+                        ChatModel chatModel = new ChatModel(client_id, client_username, client_message);
                         messageList.Add(chatModel);
                         Invoke(new Action(updateChatMListBox)); // Ensure UI updates on the main thread
                     }

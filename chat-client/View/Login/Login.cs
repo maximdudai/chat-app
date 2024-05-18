@@ -25,7 +25,7 @@ namespace chat_client.View.Login
         NetworkStream networkStream;
         TcpClient tcpClient;
         ProtocolSI protocolSI;
-        private bool isPasswordVisible = false;
+        private bool isPasswordVisible;
 
         private int id { get; set; }
         private string username { get; set; }
@@ -43,15 +43,16 @@ namespace chat_client.View.Login
 
             networkStream = tcpClient.GetStream();
             protocolSI = new ProtocolSI();
-        }
 
-        private void togglePasswordVisibility(object sender, EventArgs e)
+            this.isPasswordVisible = false;
+    }
+
+    private void togglePasswordVisibility(object sender, EventArgs e)
         {
-            //update input label visibility
-            loginPassword.UseSystemPasswordChar = !isPasswordVisible;
+            this.isPasswordVisible = !this.isPasswordVisible;
 
-            //update variable state
-            isPasswordVisible = !isPasswordVisible;
+            //update input label visibility
+            loginPassword.UseSystemPasswordChar = this.isPasswordVisible;
         }
 
         private void handleCreateAccount(object sender, EventArgs e)

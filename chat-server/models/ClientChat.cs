@@ -15,8 +15,6 @@ namespace chat_server.models
         private string command;
         private string message;
 
-        private ProtocolSI protocolSI;
-
         public ClientChat(string command, string username, string message)
         {
             this.command = command;
