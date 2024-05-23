@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Configuration;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using chat_server.connection;
@@ -225,5 +226,7 @@ namespace chat_server
                 }
             }
         }
+
+        // Methods to encrypt and decrypt password
     }
 }

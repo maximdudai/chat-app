@@ -1,4 +1,5 @@
-﻿using EI.SI;
+﻿using chat_client.View.Login;
+using EI.SI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,6 +40,18 @@ namespace chat_client.View.Register
 
             networkStream = tcpClient.GetStream();
             protocolSI = new ProtocolSI();
+
+            // Attach TextChanged events
+            registerEmail.TextChanged += IsFormCompleted;
+            registerUsername.TextChanged += IsFormCompleted;
+            registerPassword.TextChanged += IsFormCompleted;
+            passwordConfirmation.TextChanged += IsFormCompleted;
+
+            // Attach CheckedChanged event
+            checkBoxRegister.CheckedChanged += IsFormCompleted;
+
+            // Initially disable the register button
+            registerButton.Enabled = false;
         }
 
         //go to login form
@@ -53,7 +66,7 @@ namespace chat_client.View.Register
         //create a new account
         private async void registerButton_Click(object sender, EventArgs e)
         {
-            //registerButton.Enabled = false; // Prevent further clicks
+            registerButton.Enabled = false; // Prevent further clicks
 
             this.email = registerEmail.Text;
             this.username = registerUsername.Text;
@@ -123,9 +136,8 @@ namespace chat_client.View.Register
             }
             finally
             {
-                //registerButton.Enabled = true; // Re-enable the button after operation is complete
+                registerButton.Enabled = true; // Re-enable the button after operation is complete
             }
-
         }
 
         private async Task ReceiveDataFromServer()
@@ -213,5 +225,33 @@ namespace chat_client.View.Register
             this.OnClientClose(sender, null);
         }
 
+        private void handleTermsConditions(object sender, EventArgs e)
+        {
+            Terms termsConditions = new Terms();
+            termsConditions.ShowDialog();
+        }
+        private void IsFormCompleted(object sender, EventArgs e)
+        {
+            try
+            {
+                // check if all fields are filled
+                if (!string.IsNullOrEmpty(registerEmail.Text) &&
+                    !string.IsNullOrEmpty(registerUsername.Text) &&
+                    !string.IsNullOrEmpty(registerPassword.Text) &&
+                    !string.IsNullOrEmpty(passwordConfirmation.Text) &&
+                    checkBoxRegister.Checked)
+                {
+                    registerButton.Enabled = true;
+                }
+                else
+                {
+                    registerButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error while checking form completion: {ex.Message}");
+            }
+        }
     }
 }

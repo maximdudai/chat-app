@@ -129,7 +129,7 @@ namespace chat_client.View.Chat
             }
         }
 
-        private void sendButton_Click(object sender, EventArgs e)
+        private void SendButton_Click(object sender, EventArgs e)
         {
             string message = messageTextBox.Text;
 
@@ -146,20 +146,20 @@ namespace chat_client.View.Chat
             messageList.Add(chatModel);
 
             // Update the ListBox with the updated messages
-            updateChatMListBox();
+            UpdateChatMListBox();
 
             // Send the message to the server
             this.buttonSend_Click(sender, e);
         }
 
-        private void updateChatMListBox()
+        private void UpdateChatMListBox()
         {
             // Update the ListBox with the updated messages
             chatMessageListBox.DataSource = null;
             chatMessageListBox.DataSource = messageList;
         }
 
-        private void handleLoginAccount(object sender, EventArgs e)
+        private void HandleLoginAccount(object sender, EventArgs e)
         {
             this.CloseClient();
 
@@ -169,12 +169,12 @@ namespace chat_client.View.Chat
             this.Hide();
         }
 
-        private void handleFormClosing(object sender, FormClosingEventArgs e)
+        private void HandleFormClosing(object sender, FormClosingEventArgs e)
         {
             this.CloseClient();
         }
 
-        private void emojiListButton_Click(object sender, EventArgs e)
+        private void EmojiListButton_Click(object sender, EventArgs e)
         {
             EmojiForm emojiForm = new EmojiForm();
 
@@ -243,7 +243,7 @@ namespace chat_client.View.Chat
                         // Format: servermessage:username:message
                         ChatModel chatModel = new ChatModel(client_id, client_username, client_message);
                         messageList.Add(chatModel);
-                        Invoke(new Action(updateChatMListBox)); // Ensure UI updates on the main thread
+                        Invoke(new Action(UpdateChatMListBox)); // Ensure UI updates on the main thread
                     }
                 }
             }

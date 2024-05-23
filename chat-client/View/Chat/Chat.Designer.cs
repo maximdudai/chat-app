@@ -126,7 +126,7 @@
             this.emojiListButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.emojiListButton.TabIndex = 11;
             this.emojiListButton.TabStop = false;
-            this.emojiListButton.Click += new System.EventHandler(this.emojiListButton_Click);
+            this.emojiListButton.Click += new System.EventHandler(this.EmojiListButton_Click);
             // 
             // sendButton
             // 
@@ -137,7 +137,7 @@
             this.sendButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.sendButton.TabIndex = 12;
             this.sendButton.TabStop = false;
-            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
+            this.sendButton.Click += new System.EventHandler(this.SendButton_Click);
             // 
             // pictureBox4
             // 
@@ -148,7 +148,7 @@
             this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox4.TabIndex = 13;
             this.pictureBox4.TabStop = false;
-            this.pictureBox4.Click += new System.EventHandler(this.handleLoginAccount);
+            this.pictureBox4.Click += new System.EventHandler(this.HandleLoginAccount);
             // 
             // Chat
             // 
@@ -170,7 +170,7 @@
             this.Name = "Chat";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Chat";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.handleFormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleFormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.emojiListButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sendButton)).EndInit();

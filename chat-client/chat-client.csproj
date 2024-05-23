@@ -51,6 +51,7 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -85,6 +86,12 @@
     <Compile Include="View\Login\Login.Designer.cs">
       <DependentUpon>Login.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\Login\Terms.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\Login\Terms.Designer.cs">
+      <DependentUpon>Terms.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Register\Register.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,6 +116,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\Login\Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\Login\Terms.resx">
+      <DependentUpon>Terms.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\Register\Register.resx">
       <DependentUpon>Register.cs</DependentUpon>

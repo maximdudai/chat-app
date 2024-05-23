@@ -42,6 +42,7 @@ namespace chat_client.View.Register
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.registerUsername = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.termsConditions = new System.Windows.Forms.LinkLabel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -50,7 +51,7 @@ namespace chat_client.View.Register
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(54, 267);
+            this.label1.Location = new System.Drawing.Point(54, 238);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(48, 20);
             this.label1.TabIndex = 2;
@@ -70,7 +71,7 @@ namespace chat_client.View.Register
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(56, 410);
+            this.label3.Location = new System.Drawing.Point(56, 381);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(78, 20);
             this.label3.TabIndex = 4;
@@ -80,7 +81,7 @@ namespace chat_client.View.Register
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(56, 488);
+            this.label4.Location = new System.Drawing.Point(56, 459);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(137, 20);
             this.label4.TabIndex = 5;
@@ -89,14 +90,14 @@ namespace chat_client.View.Register
             // registerEmail
             // 
             this.registerEmail.ImeMode = System.Windows.Forms.ImeMode.Off;
-            this.registerEmail.Location = new System.Drawing.Point(58, 290);
+            this.registerEmail.Location = new System.Drawing.Point(58, 261);
             this.registerEmail.Name = "registerEmail";
             this.registerEmail.Size = new System.Drawing.Size(250, 20);
             this.registerEmail.TabIndex = 1;
             // 
             // registerPassword
             // 
-            this.registerPassword.Location = new System.Drawing.Point(60, 433);
+            this.registerPassword.Location = new System.Drawing.Point(60, 404);
             this.registerPassword.Name = "registerPassword";
             this.registerPassword.Size = new System.Drawing.Size(250, 20);
             this.registerPassword.TabIndex = 3;
@@ -104,7 +105,7 @@ namespace chat_client.View.Register
             // 
             // passwordConfirmation
             // 
-            this.passwordConfirmation.Location = new System.Drawing.Point(60, 511);
+            this.passwordConfirmation.Location = new System.Drawing.Point(60, 482);
             this.passwordConfirmation.Name = "passwordConfirmation";
             this.passwordConfirmation.Size = new System.Drawing.Size(250, 20);
             this.passwordConfirmation.TabIndex = 4;
@@ -152,7 +153,7 @@ namespace chat_client.View.Register
             // 
             // registerUsername
             // 
-            this.registerUsername.Location = new System.Drawing.Point(58, 361);
+            this.registerUsername.Location = new System.Drawing.Point(58, 332);
             this.registerUsername.Name = "registerUsername";
             this.registerUsername.Size = new System.Drawing.Size(250, 20);
             this.registerUsername.TabIndex = 2;
@@ -161,11 +162,22 @@ namespace chat_client.View.Register
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(54, 338);
+            this.label6.Location = new System.Drawing.Point(54, 309);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(83, 20);
             this.label6.TabIndex = 14;
             this.label6.Text = "Username";
+            // 
+            // termsConditions
+            // 
+            this.termsConditions.AutoSize = true;
+            this.termsConditions.Location = new System.Drawing.Point(101, 520);
+            this.termsConditions.Name = "termsConditions";
+            this.termsConditions.Size = new System.Drawing.Size(158, 13);
+            this.termsConditions.TabIndex = 16;
+            this.termsConditions.TabStop = true;
+            this.termsConditions.Text = "Terms of use and Privacy Policy";
+            this.termsConditions.Click += new System.EventHandler(this.handleTermsConditions);
             // 
             // pictureBox1
             // 
@@ -182,6 +194,7 @@ namespace chat_client.View.Register
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(351, 671);
+            this.Controls.Add(this.termsConditions);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.registerUsername);
             this.Controls.Add(this.label6);
@@ -200,6 +213,7 @@ namespace chat_client.View.Register
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Register";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleCloseClient);
+            this.TextChanged += new System.EventHandler(this.IsFormCompleted);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -221,5 +235,6 @@ namespace chat_client.View.Register
         private System.Windows.Forms.TextBox registerUsername;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.LinkLabel termsConditions;
     }
 }
