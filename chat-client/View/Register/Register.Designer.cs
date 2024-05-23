@@ -213,7 +213,6 @@ namespace chat_client.View.Register
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Register";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleCloseClient);
-            this.TextChanged += new System.EventHandler(this.IsFormCompleted);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
