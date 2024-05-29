@@ -15,9 +15,6 @@ namespace chat_server.connection
         private MySqlConnection connection;
 
         // Error codes
-        const int CANNOT_CONNECT_TO_THE_SERVER = 0;
-        const int INVALID_USERNAME_PASSWORD = 1045;
-
         private string connectionString = string.Format(
                    "server={0};uid={1};pwd={2};database={3}",
                    "localhost",

@@ -40,24 +40,11 @@ namespace chat_client.View.Chat
             this.id = id;
             this.username = username;
 
-            // Send connecting message to listBox
-            this.handleChatConnection();
-
             // Receive messages from the server
-            Task.Run(async () => await this.ReceiveMessages());
-        }
+            Task.Run(async () => await this.ReceiveDataFromServer());
 
-        public void handleChatConnection(bool option = true)
-        {
-            try
-            {
-                Connection conn = new Connection(this.username, this.id, option);
-                chatConnectionListBox.Items.Add(conn);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("[CLIENT]: " + e.Message);
-            }
+            // Send information to the server about new connection
+
         }
 
         private async void buttonSend_Click(object sender, EventArgs e)
@@ -75,9 +62,12 @@ namespace chat_client.View.Chat
                     string msg = messageTextBox.Text;
                     messageTextBox.Clear();
 
+                    string message = this.EncodeMessage(msg);
+
                     // Format the message to be sent to the server
-                    string sendToServer = $"chat:{this.username}:{this.id}:{msg}";
-                    byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(sendToServer));
+                    string sendToServer = $"chat:{this.username}:{this.id}:{message}";
+
+                    byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, sendToServer);
 
                     if (networkStream.CanWrite)
                     {
@@ -139,14 +129,6 @@ namespace chat_client.View.Chat
                 return;
             }
 
-            // Create a ChatModel object with the client's ID, username, and message
-            ChatModel chatModel = new ChatModel(this.id, this.username, message);
-
-            // Add the message to the message list
-            messageList.Add(chatModel);
-
-            // Update the ListBox with the updated messages
-            UpdateChatMListBox();
 
             // Send the message to the server
             this.buttonSend_Click(sender, e);
@@ -206,9 +188,8 @@ namespace chat_client.View.Chat
         }
 
         // Receive messages from the server
-        private async Task ReceiveMessages()
+        private async Task ReceiveDataFromServer()
         {
-            Console.WriteLine("[CLIENT]: Receiving messages from the server - " + this.username);
             try
             {
                 while (true)
@@ -219,31 +200,54 @@ namespace chat_client.View.Chat
                         Console.WriteLine("[CLIENT]: Server disconnected");
                         break;
                     }
-
+                    // Set the buffer to the protocolSI object
                     protocolSI.SetBuffer(protocolSI.Buffer);
-
                     if (protocolSI.GetDataLength() > 1400)
                     { 
                         Console.WriteLine("[CLIENT]: Received data exceeds allowable limits. " + protocolSI.GetDataLength());
                         continue;
                     }
 
-                    string data = Encoding.UTF8.GetString(protocolSI.GetData(), 0, protocolSI.GetDataLength());
-                    Console.WriteLine("[CLIENT]: Raw data received: " + data);
+                    var cmdType = protocolSI.GetCmdType();
 
+                    string data = Encoding.UTF8.GetString(protocolSI.GetData(), 0, protocolSI.GetDataLength());
                     string[] dataSplit = data.Split(':');
 
-                    // Save received data from there as a variable
-                    int client_id = int.Parse(dataSplit[1]);
-                    string client_username = dataSplit[2];
-                    string client_message = dataSplit[3];
+                    Console.WriteLine("[CLIENT]: Command type received: " + cmdType);
 
-                    if (dataSplit[0] == "servermessage")
+                    switch (cmdType)
                     {
-                        // Format: servermessage:username:message
-                        ChatModel chatModel = new ChatModel(client_id, client_username, client_message);
-                        messageList.Add(chatModel);
-                        Invoke(new Action(UpdateChatMListBox)); // Ensure UI updates on the main thread
+                        case ProtocolSICmdType.ACK:
+                            // Ensure the data is in the correct format
+                            if (dataSplit.Length < 2)
+                                continue;
+
+                            string command = dataSplit[0];
+                            Console.WriteLine("[CLIENT]: Command received: " + command);
+
+                            switch (command)
+                            {
+                                case "servermessage":
+                                    this.TypeMessage(data);
+                                    break;
+                                
+                                case "serverconnection":
+                                    this.TypeConnection(data);
+                                    break;
+
+                                default:
+                                    Console.WriteLine("[CLIENT]: Invalid command received");
+                                    break;
+                            }
+                            break;
+
+                        case ProtocolSICmdType.EOT:
+                            Console.WriteLine("[CLIENT]: Client " + this.id + " disconnected (EOT)");
+                            break;
+
+                        default:
+                            Console.WriteLine("[CLIENT]: Invalid command received");
+                            break;
                     }
                 }
             }
@@ -251,6 +255,64 @@ namespace chat_client.View.Chat
             {
                 Console.WriteLine("[CLIENT]: " + e.Message);
             }
+        }
+
+        private void TypeMessage(string data)
+        {
+            try
+            {
+                string[] dataSplit = data.Split(':');
+
+                // Save received data from there as a variable
+                int client_id = int.Parse(dataSplit[1]);
+                string client_username = dataSplit[2];
+                string client_message = dataSplit[3];
+
+                string decodedMessage = this.DecodeMessage(client_message);
+
+                // Format: servermessage:username:message
+                ChatModel chatModel = new ChatModel(client_id, client_username, decodedMessage);
+                messageList.Add(chatModel);
+                Invoke(new Action(UpdateChatMListBox)); // Ensure UI updates on the main thread
+
+                // Scroll to the last message
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[CLIENT]: " + e.Message);
+            }
+       
+        }
+        private void TypeConnection(string data)
+        {
+            try
+            {
+                string[] dataSplit = data.Split(':');
+
+                // Save received data from there as a variable
+                int client_id = int.Parse(dataSplit[1]);
+                string client_username = dataSplit[2];
+
+                // when user connects option = true
+                // when user disconnects option = false
+                bool option = bool.Parse(dataSplit[3]);
+
+                Connection conn = new Connection(client_username, client_id, option);
+                chatConnectionListBox.Items.Add(conn);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[CLIENT]: " + e.Message);
+            }
+        
+        }
+        private string DecodeMessage(string encodedMessage)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(encodedMessage));
+        }
+        private string EncodeMessage(string message)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(message));
         }
     }
 }

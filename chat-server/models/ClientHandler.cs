@@ -122,26 +122,33 @@ namespace chat_server
             try
             {
                 string[] dataSplit = data.Split(':');
+
                 if (dataSplit.Length < 4) return; // Ensure all parts are present
 
                 this.username = dataSplit[1];
                 this.id = int.Parse(dataSplit[2]);
-                string message = dataSplit[3];
+                string encodedMessage = dataSplit[3];
+                
+                // Decode the message
 
-                Console.WriteLine("[SERVER]: " + this.username + " sent message: " + message);
+                Console.WriteLine("[SERVER]: " + this.username + " sent message: " + encodedMessage);
 
                 // Send the message to the database
                 Database database = new Database();
-                await database.InsertChatLog(this.id, this.username, message);
+                await database.InsertChatLog(this.id, this.username, encodedMessage);
+
+                // Log to verify correct sender ID
+                Console.WriteLine($"[SERVER]: Sending to clients, excluding sender ID: {this.id}");
 
                 // Send the message to all clients
-                await this.SendToClients("servermessage", $"{this.id}:{this.username}:{message}");
+                await this.SendToClients("servermessage", $"{this.id}:{this.username}:{encodedMessage}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("[SERVER]: Error in sending chat message - " + ex.Message);
             }
         }
+
 
         private async Task LoginCommand(string data, NetworkStream networkStream)
         {
@@ -202,15 +209,14 @@ namespace chat_server
         {
             string formatMessageToClient = $"{command}:{message}";
             byte[] data = Encoding.UTF8.GetBytes(formatMessageToClient);
+
             ProtocolSI protocolSI = new ProtocolSI();
             byte[] encryptData = protocolSI.Make(ProtocolSICmdType.ACK, data);
 
             foreach (var kvp in connectedClients)
             {
+                var clientId = kvp.Key;
                 var client = kvp.Value;
-
-                if(this.connectedClients.ContainsKey(this.id) && this.connectedClients[this.id] == client)
-                    continue;
 
                 if (client != null && client.Connected)
                 {
@@ -221,12 +227,10 @@ namespace chat_server
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"[SERVER]: Error sending to client {kvp.Key}: {e.Message}");
+                        Console.WriteLine($"[SERVER]: Error sending to client {clientId}: {e.Message}");
                     }
                 }
             }
         }
-
-        // Methods to encrypt and decrypt password
     }
 }

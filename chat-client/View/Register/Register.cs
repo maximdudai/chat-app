@@ -85,8 +85,15 @@ namespace chat_client.View.Register
                 return;
             }
 
-            if (!checkBoxAgree)
+            //prevent using special characters in username
+            var regUsernameValidation = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9_]+$");
+            if (!regUsernameValidation.IsMatch(username))
+            {
+                MessageBox.Show("Username can only contain letters, numbers and underscores");
+                return;
+            }
 
+            if (!checkBoxAgree)
             {
                 MessageBox.Show("You must accept the Terms of Use and Privacy Policy");
                 return;
