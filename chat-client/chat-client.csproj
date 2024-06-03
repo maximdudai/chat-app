@@ -155,6 +155,12 @@
   <ItemGroup>
     <None Include="Resources\logout.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\chat-log\chat-log.csproj">
+      <Project>{439d53a5-42a6-4baf-9ed5-890bacff1db0}</Project>
+      <Name>chat-log</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

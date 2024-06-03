@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chat-client", "chat-client\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chat-server", "chat-server\chat-server.csproj", "{13080CFA-C692-4B24-A8E7-C08957B7F429}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chat-log", "chat-log\chat-log.csproj", "{439D53A5-42A6-4BAF-9ED5-890BACFF1DB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,8 +23,15 @@ Global
 		{13080CFA-C692-4B24-A8E7-C08957B7F429}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13080CFA-C692-4B24-A8E7-C08957B7F429}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13080CFA-C692-4B24-A8E7-C08957B7F429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{439D53A5-42A6-4BAF-9ED5-890BACFF1DB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{439D53A5-42A6-4BAF-9ED5-890BACFF1DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{439D53A5-42A6-4BAF-9ED5-890BACFF1DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{439D53A5-42A6-4BAF-9ED5-890BACFF1DB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1117C001-2A9B-4741-8D79-25750C2C7FAA}
 	EndGlobalSection
 EndGlobal

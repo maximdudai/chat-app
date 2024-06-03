@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using chat_client.View.Chat;
+using chat_log;
 using EI.SI;
 
 namespace chat_client.View.Login
@@ -94,6 +95,10 @@ namespace chat_client.View.Login
 
                 // Send login data to the server asynchronously
                 await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
+
+                // Log the login attempt
+                Log log = new Log("client");
+                log.AddLog($"Login attempt with username: {username}");
 
                 // Start receiving data from the server asynchronously
                 await ReceiveDataFromServer();

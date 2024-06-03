@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using chat_log;
 using chat_server.connection;
 using chat_server.models;
 using EI.SI;
@@ -166,6 +167,10 @@ namespace chat_server
 
                 ProtocolSI protocolSI = new ProtocolSI();
                 byte[] ack = protocolSI.Make(ProtocolSICmdType.ACK, user_id);
+
+                // Save login attempt to logs
+                Log log = new Log("server");
+                log.AddLog($"Login attempt with username: {username}");
 
                 await networkStream.WriteAsync(ack, 0, ack.Length);
                 Console.WriteLine("[SERVER]: " + username + " login: " + (userID.HasValue ? "success" : "fail"));

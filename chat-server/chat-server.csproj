@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="connection\Database.cs" />
+    <Compile Include="log\Log.cs" />
     <Compile Include="models\ClientChat.cs" />
     <Compile Include="models\ClientHandler.cs" />
     <Compile Include="Program.cs" />
@@ -108,6 +109,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\chat-log\chat-log.csproj">
+      <Project>{439d53a5-42a6-4baf-9ed5-890bacff1db0}</Project>
+      <Name>chat-log</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
