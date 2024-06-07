@@ -128,7 +128,10 @@ namespace chat_server.connection
                         }
                     }
 
-                    byte[] salt = GenerateSalt(16); // Generates a unique salt
+                    // Generate a random salt value between 8 and 32 bytes
+                    int randomSaltValue = new Random().Next(8, 32);
+
+                    byte[] salt = GenerateSalt(randomSaltValue); // Generates a unique salt
                     byte[] hashedPassword = ComputeHash(password, salt, 10000, 32); // Computes hash of the password
 
                     string saltBase64 = Convert.ToBase64String(salt);
@@ -136,6 +139,7 @@ namespace chat_server.connection
 
                     using (var cmd = new MySqlCommand(queryInsert, connection))
                     {
+                        // Add parameters to the command
                         cmd.Parameters.AddWithValue("@username", username);
                         cmd.Parameters.AddWithValue("@passwordHash", Convert.ToBase64String(hashedPassword));
                         cmd.Parameters.AddWithValue("@salt", Convert.ToBase64String(salt));
@@ -143,6 +147,7 @@ namespace chat_server.connection
 
                         await cmd.ExecuteNonQueryAsync(); // Execute the insert command
 
+                        // Retrieve the last inserted ID
                         cmd.CommandText = queryLastId;
                         var result = await cmd.ExecuteScalarAsync(); // Execute scalar returns the first column of the first row
                         if (result != null)
@@ -171,6 +176,7 @@ namespace chat_server.connection
                     await connection.OpenAsync();
                     using (var cmd = new MySqlCommand(queryInsert, connection))
                     {
+                        // Add parameters to the command
                         cmd.Parameters.AddWithValue("@id", id);
                         cmd.Parameters.AddWithValue("@username", username);
                         cmd.Parameters.AddWithValue("@chat", chat);
