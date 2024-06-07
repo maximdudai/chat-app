@@ -148,20 +148,26 @@ namespace chat_server
             try
             {
                 string[] dataSplit = data.Split(':');
-                if (dataSplit.Length < 3) return; // Ensure username and password are present
+                //if (dataSplit.Length < 3) return; // Ensure username and password are present
+                if (dataSplit.Length < 3)
+                {
+                    Console.WriteLine("[SERVER]: Invalid data format");
+                    return; // Ensure username and password are present
+                }
 
                 this.username = dataSplit[1];
                 this.password = dataSplit[2];
+
                 Database database = new Database();
 
                 var userID = await database.LoginAsync(username, password);
+                Console.WriteLine("[SERVER]: UserID - " + (userID.HasValue ? userID.Value.ToString() : "fail"));
                 byte[] user_id = userID.HasValue ? Encoding.UTF8.GetBytes(userID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
 
                 ProtocolSI protocolSI = new ProtocolSI();
                 byte[] ack = protocolSI.Make(ProtocolSICmdType.ACK, user_id);
 
                 await networkStream.WriteAsync(ack, 0, ack.Length);
-                Console.WriteLine("[SERVER]: " + username + " login: " + (userID.HasValue ? "success" : "fail"));
             }
             catch (Exception ex)
             {
