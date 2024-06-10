@@ -15,7 +15,6 @@ namespace chat_log
         public Log(string logType)
         {
             string mainDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            Console.WriteLine(mainDirectory);
 
             string logDirectory = Path.Combine(mainDirectory, "Logs");
 

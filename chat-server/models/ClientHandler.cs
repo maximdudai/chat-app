@@ -167,19 +167,39 @@ namespace chat_server
                 this.password = dataSplit[2];
 
                 Database database = new Database();
-
+                // Check if the login credentials are correct
                 var userID = await database.LoginAsync(username, password);
-                Console.WriteLine("[SERVER]: UserID - " + (userID.HasValue ? userID.Value.ToString() : "fail"));
-                byte[] user_id = userID.HasValue ? Encoding.UTF8.GetBytes(userID.Value.ToString()) : Encoding.UTF8.GetBytes("fail");
+
+                // Convert the user ID to a string
+                string user_id = userID.HasValue ? userID.Value.ToString() : "fail";
+
+                // Format the data to send to the client
+                string dataToSend = $"serverlogin:{user_id}";
 
                 ProtocolSI protocolSI = new ProtocolSI();
-                byte[] ack = protocolSI.Make(ProtocolSICmdType.ACK, user_id);
+                // Format the login information to send to the client
+                byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.ACK, Encoding.UTF8.GetBytes(dataToSend));
+
+                // Send the data to the client side
+                await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
+
+
+                //connection information to the client if the login is successful
+                if (userID.HasValue)
+                {
+                    string connectionToSend = $"serverconnection:{userID.Value}:{this.username}:true";
+                    // Format the connection information to send to the client
+                    byte[] conn = protocolSI.Make(ProtocolSICmdType.ACK, Encoding.UTF8.GetBytes(connectionToSend));
+
+                    Console.WriteLine("sending new connection to the client");
+
+                    // send connection information to the client
+                    await networkStream.WriteAsync(conn, 0, conn.Length);
+                }
 
                 // Save login attempt to logs
                 Log log = new Log("server");
                 log.AddLog($"Login attempt with username: {username}");
-
-                await networkStream.WriteAsync(ack, 0, ack.Length);
             }
             catch (Exception ex)
             {
@@ -206,6 +226,7 @@ namespace chat_server
                 byte[] ack;
                 ProtocolSI protocolSI = new ProtocolSI();
                 ack = protocolSI.Make(ProtocolSICmdType.ACK, register_id);
+
 
                 await networkStream.WriteAsync(ack, 0, ack.Length);
                 Console.WriteLine("[SERVER]: " + username + " registration: " + (registerID.HasValue ? "success" : "fail"));

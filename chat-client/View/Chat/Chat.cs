@@ -18,6 +18,7 @@ namespace chat_client.View.Chat
         private int id { get; }
         private string username { get; }
         private List<ChatModel> messageList;
+        private List<Connection> connectionList;
 
         private const int PORT = 5555;
         private static NetworkStream networkStream;
@@ -37,6 +38,8 @@ namespace chat_client.View.Chat
             protocolSI = new ProtocolSI();
 
             messageList = new List<ChatModel>();
+            connectionList = new List<Connection>();
+
             this.id = id;
             this.username = username;
 
@@ -139,6 +142,12 @@ namespace chat_client.View.Chat
             // Update the ListBox with the updated messages
             chatMessageListBox.DataSource = null;
             chatMessageListBox.DataSource = messageList;
+        }
+        private void UpdateConnectionList()
+        {
+            // Update the ListBox with the updated messages
+            chatConnectionListBox.DataSource = null;
+            chatConnectionListBox.DataSource = connectionList;
         }
 
         private void HandleLoginAccount(object sender, EventArgs e)
@@ -287,7 +296,15 @@ namespace chat_client.View.Chat
         {
             try
             {
+                Console.WriteLine("receiving new conn");
+
                 string[] dataSplit = data.Split(':');
+
+                if (dataSplit.Length < 4)
+                {
+                    Console.WriteLine("Received data is not in the expected format.");
+                    return;
+                }
 
                 // Save received data from there as a variable
                 int client_id = int.Parse(dataSplit[1]);
@@ -298,14 +315,15 @@ namespace chat_client.View.Chat
                 bool option = bool.Parse(dataSplit[3]);
 
                 Connection conn = new Connection(client_username, client_id, option);
-                chatConnectionListBox.Items.Add(conn);
+                connectionList.Add(conn);
+                Invoke(new Action(UpdateConnectionList)); // Ensure UI updates on the main thread
             }
             catch (Exception e)
             {
                 Console.WriteLine("[CLIENT]: " + e.Message);
             }
-        
         }
+
         private string DecodeMessage(string encodedMessage)
         {
             return Encoding.UTF8.GetString(Convert.FromBase64String(encodedMessage));

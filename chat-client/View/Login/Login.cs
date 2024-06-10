@@ -123,34 +123,26 @@ namespace chat_client.View.Login
                 int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
                 if (bytesRead > 0)
                 {
-                    
                     switch (protocolSI.GetCmdType())
                     {
                         case ProtocolSICmdType.ACK:
+                        {
+                            string data = Encoding.UTF8.GetString(protocolSI.GetData());
+                            string[] dataSplit = data.Split(':');
+
+                            switch (dataSplit[0])
                             {
-                                var data = Encoding.UTF8.GetString(protocolSI.GetData());
-
-                                if (!int.TryParse(data, out int result))
-                                {
-                                    this.Invoke((MethodInvoker)delegate
-                                    {
-                                        MessageBox.Show("Invalid Username or Password, please retry!", "Authenticate", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    });
+                                case "serverlogin":
+                                    this.OnClientLogin(data);
                                     return;
-                                }
 
+                                default:
+                                    break;
 
-                                this.id = int.Parse(data);
-
-                                this.Invoke((MethodInvoker)delegate
-                                {
-                                    Chat.Chat chat = new Chat.Chat(this.id, this.username);
-                                    chat.Show();
-                                    this.Hide();
-                                });
-                                break;
                             }
-
+                            break;
+                        }
+                            
 
                         case ProtocolSICmdType.EOT:
                             Console.WriteLine("Client disconnected");
@@ -172,6 +164,34 @@ namespace chat_client.View.Login
             }
         }
 
+        private void OnClientLogin(string data)
+        {
+            string[] dataSplit = data.Split(':');
+
+            // Await the server response to the login request
+            // if the response is an string, it means the login failed
+            string user_id = dataSplit[1];
+
+            if (!int.TryParse(user_id, out int result))
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    MessageBox.Show("Invalid Username or Password, please retry!", "Authenticate", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
+                return;
+            }
+
+            // If the response is an integer, it means the login was successful
+            // Assign received user_id to the id property
+            this.id = int.Parse(user_id);
+
+            this.Invoke((MethodInvoker)delegate
+            {
+                Chat.Chat chat = new Chat.Chat(this.id, this.username);
+                chat.Show();
+                this.Hide();
+            });
+        }
 
         private void OnClientClose(object sender, FormClosedEventArgs e)
         {
