@@ -93,6 +93,14 @@ namespace chat_client.View.Register
                 return;
             }
 
+            var regPasswordValidation = new System.Text.RegularExpressions.Regex(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
+
+            if(!regPasswordValidation.IsMatch(password))
+            {
+                MessageBox.Show("Password must contain at least 8 characters, one letter and one number");
+                return;
+            }
+
             if (!checkBoxAgree)
             {
                 MessageBox.Show("You must accept the Terms of Use and Privacy Policy");

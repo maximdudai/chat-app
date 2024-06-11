@@ -39,6 +39,8 @@
             this.emojiListButton = new System.Windows.Forms.PictureBox();
             this.sendButton = new System.Windows.Forms.PictureBox();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.loggedUsername = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.emojiListButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sendButton)).BeginInit();
@@ -150,12 +152,34 @@
             this.pictureBox4.TabStop = false;
             this.pictureBox4.Click += new System.EventHandler(this.HandleLoginAccount);
             // 
+            // loggedUsername
+            // 
+            this.loggedUsername.AutoSize = true;
+            this.loggedUsername.Font = new System.Drawing.Font("Arial Rounded MT Bold", 15F);
+            this.loggedUsername.Location = new System.Drawing.Point(25, 31);
+            this.loggedUsername.Name = "loggedUsername";
+            this.loggedUsername.Size = new System.Drawing.Size(72, 23);
+            this.loggedUsername.TabIndex = 14;
+            this.loggedUsername.Text = "Maxim";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Arial Rounded MT Bold", 10F);
+            this.label3.Location = new System.Drawing.Point(24, 12);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(78, 16);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "Logged in:";
+            // 
             // Chat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.ClientSize = new System.Drawing.Size(484, 561);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.loggedUsername);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.sendButton);
             this.Controls.Add(this.emojiListButton);
@@ -196,5 +220,7 @@
         private System.Windows.Forms.PictureBox emojiListButton;
         private System.Windows.Forms.PictureBox sendButton;
         private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.Label loggedUsername;
+        private System.Windows.Forms.Label label3;
     }
 }

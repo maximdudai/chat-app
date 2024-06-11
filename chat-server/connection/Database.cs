@@ -166,37 +166,6 @@ namespace chat_server.connection
         }
 
 
-        public async Task InsertChatLog(int id, string username, string chat)
-        {
-            string queryInsert = "INSERT INTO messages (userid, username, message) VALUES (@id, @username, @chat);";
-            try
-            {
-                using (var connection = new MySqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-                    using (var cmd = new MySqlCommand(queryInsert, connection))
-                    {
-                        // Add parameters to the command
-                        cmd.Parameters.AddWithValue("@id", id);
-                        cmd.Parameters.AddWithValue("@username", username);
-                        cmd.Parameters.AddWithValue("@chat", chat);
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                }
-                Console.WriteLine("[DB] Chat log inserted successfully.");
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("[DB] MySQL error occurred: " + ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("[DB] An unexpected error occurred: " + ex.Message);
-                throw;
-            }
-        }
-
         // Method to generate a salt
         private static byte[] GenerateSalt(int size)
         {

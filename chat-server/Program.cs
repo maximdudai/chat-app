@@ -23,13 +23,20 @@ namespace chat_server
 
             while (true)
             {
-                TcpClient client = await listener.AcceptTcpClientAsync();
-                int clientId = ClientIdCounter++;
-
-                if (ConnectedClients.TryAdd(clientId, client))
+                try
                 {
-                    ClientHandler clientHandler = new ClientHandler(client, clientId, ConnectedClients);
-                    Task task = Task.Run(() => clientHandler.Handle());
+                    TcpClient client = await listener.AcceptTcpClientAsync();
+                    int clientId = ClientIdCounter++;
+
+                    if (ConnectedClients.TryAdd(clientId, client))
+                    {
+                        ClientHandler clientHandler = new ClientHandler(client, clientId, ConnectedClients);
+                        Task task = Task.Run(() => clientHandler.Handle());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
         }
