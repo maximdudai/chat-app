@@ -34,6 +34,9 @@ namespace chat_client.View.Login
         private string password { get; set; }
         private string publicKey { get; set; }
 
+        private byte[] clientKey;
+        private byte[] clientIV;
+
         private RSACryptoServiceProvider rsaClient;
         private AesCryptoServiceProvider aesClient;
 
@@ -256,25 +259,36 @@ namespace chat_client.View.Login
 
             await networkStream.WriteAsync(keyToServer, 0, keyToServer.Length);
         }
-        private async Task OnClientReceivePublicKey(byte[] data)
+        public async Task OnClientReceivePublicKey(byte[] data)
         {
             Console.WriteLine("Received public key from client");
 
-            //receber pub key do server
+            // Initialize RSA client
             rsaClient = new RSACryptoServiceProvider();
-
             string publicKey = Encoding.UTF8.GetString(data);
             rsaClient.FromXmlString(publicKey);
 
+            // Initialize AES client and generate key and IV
             aesClient = new AesCryptoServiceProvider();
-            byte[] encryptedKey = rsaClient.Encrypt(aesClient.Key, true);
+            aesClient.GenerateKey();
+            aesClient.GenerateIV();
 
+            clientKey = aesClient.Key;
+            clientIV = aesClient.IV;
+
+            // Encrypt AES key and IV with RSA public key
+            byte[] encryptedKey = rsaClient.Encrypt(aesClient.Key, RSAEncryptionPadding.OaepSHA1);
+            byte[] encryptedIV = rsaClient.Encrypt(aesClient.IV, RSAEncryptionPadding.OaepSHA1);
+
+            // Send the encrypted AES key and IV to the server
             ProtocolSI protocolSI = new ProtocolSI();
-            byte[] privateKey = protocolSI.Make(ProtocolSICmdType.SECRET_KEY, encryptedKey);
+            byte[] encryptedKeyMessage = protocolSI.Make(ProtocolSICmdType.SECRET_KEY, encryptedKey);
+            byte[] encryptedIVMessage = protocolSI.Make(ProtocolSICmdType.IV, encryptedIV);
 
-            Console.WriteLine("Sending private key to client");
+            Console.WriteLine("Sending encrypted AES key and IV to server");
 
-            await networkStream.WriteAsync(privateKey, 0, privateKey.Length);
+            await networkStream.WriteAsync(encryptedKeyMessage, 0, encryptedKeyMessage.Length);
+            await networkStream.WriteAsync(encryptedIVMessage, 0, encryptedIVMessage.Length);
         }
     }
 }

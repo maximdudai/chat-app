@@ -26,6 +26,9 @@ namespace chat_server
         private RSACryptoServiceProvider rsaServer;
         private AesCryptoServiceProvider aesServer;
 
+        private byte[] privateKey;
+        private byte[] privateIV;
+
         public ClientHandler(TcpClient client, int id, ConcurrentDictionary<int, TcpClient> connectedClients)
         {
             this.client = client;
@@ -105,6 +108,10 @@ namespace chat_server
 
                             case ProtocolSICmdType.SECRET_KEY:
                                 this.ReceiveSecretKey(protocolSI.GetData());
+                                break;
+
+                            case ProtocolSICmdType.IV:
+                                this.ReceiveIV(protocolSI.GetData());
                                 break;
 
                             case ProtocolSICmdType.EOT:
@@ -290,9 +297,22 @@ namespace chat_server
         private void ReceiveSecretKey(byte[] data)
         {
             aesServer = new AesCryptoServiceProvider();
-            Console.WriteLine("[SERVER]: Received secret key from client");
 
             aesServer.Key = rsaServer.Decrypt(data, true);
+            this.privateKey = aesServer.Key;
+
+            Console.WriteLine("[SERVER]: Received secret key from client");
+
+        }
+
+        private void ReceiveIV(byte[] data)
+        {
+            aesServer = new AesCryptoServiceProvider();
+
+            aesServer.IV = rsaServer.Decrypt(data, true);
+            this.privateIV = aesServer.IV;
+
+            Console.WriteLine("[SERVER]: Received secret IV from client");
         }
     }
 }
