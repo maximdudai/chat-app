@@ -140,8 +140,6 @@ namespace chat_client.View.Login
                 string data = Encoding.UTF8.GetString(protocolSI.GetData());
                 string[] dataSplit = data.Split(':');
 
-                Console.WriteLine($"Command received: " + protocolSI.GetCmdType() + " datasplit0: " + dataSplit[0]);
-
                     switch (protocolSI.GetCmdType())
                     {
                         case ProtocolSICmdType.DATA:

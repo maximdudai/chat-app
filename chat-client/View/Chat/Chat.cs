@@ -43,11 +43,12 @@ namespace chat_client.View.Chat
             this.id = id;
             this.username = username;
 
+            // Set the logged username
+            loggedUsername.Text = username;
+
             // Receive messages from the server
             Task.Run(async () => await this.ReceiveDataFromServer());
-
-            // Send information to the server about new connection
-
+            Task.Run(async () => await this.SendNewConnection(id, username));
         }
 
         private async void buttonSend_Click(object sender, EventArgs e)
@@ -75,7 +76,7 @@ namespace chat_client.View.Chat
                     if (networkStream.CanWrite)
                     {
                         await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
-                        messageSent = true; // Set the flag if send is successful
+                        messageSent = true; // Set the flag if  is successful
                     }
                     else
                     {
@@ -228,7 +229,7 @@ namespace chat_client.View.Chat
                     {
                         case ProtocolSICmdType.DATA:
                             // Ensure the data is in the correct format
-                            if (dataSplit.Length < 2)
+                            if (dataSplit.Length < 1)
                                 continue;
 
                             string command = dataSplit[0];
@@ -239,8 +240,8 @@ namespace chat_client.View.Chat
                                 case "servermessage":
                                     this.TypeMessage(data);
                                     break;
-                                
-                                case "serverconnection":
+
+                                case "clientconnection":
                                     this.TypeConnection(data);
                                     break;
 
@@ -292,12 +293,19 @@ namespace chat_client.View.Chat
             }
        
         }
+
+        private async Task SendNewConnection(int id, string username)
+        {
+            string sendToServer = $"serverconnection:{id}:{username}:true";
+            byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, sendToServer);
+
+            await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
+        }
+
         private void TypeConnection(string data)
         {
             try
             {
-                Console.WriteLine("receiving new conn");
-
                 string[] dataSplit = data.Split(':');
 
                 if (dataSplit.Length < 4)
