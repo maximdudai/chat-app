@@ -9,6 +9,7 @@ using chat_log;
 using chat_server.connection;
 using chat_server.models;
 using EI.SI;
+using Org.BouncyCastle.Tls;
 
 namespace chat_server
 {
@@ -21,6 +22,9 @@ namespace chat_server
         private string username;
         private string password;
         private string email;
+
+        private RSACryptoServiceProvider rsaServer;
+        private AesCryptoServiceProvider aesServer;
 
         public ClientHandler(TcpClient client, int id, ConcurrentDictionary<int, TcpClient> connectedClients)
         {
@@ -59,12 +63,14 @@ namespace chat_server
                         var cmdType = protocolSI.GetCmdType();
                         Console.WriteLine("[SERVER]: Command type received: " + cmdType);
 
+                        string data = Encoding.UTF8.GetString(protocolSI.GetData());
+                        string[] dataSplit = data.Split(':');
+
+                        Console.WriteLine("[SERVER]: Data received: " + data);
+
                         switch (cmdType)
                         {
                             case ProtocolSICmdType.DATA:
-                                string data = Encoding.UTF8.GetString(protocolSI.GetData());
-                                string[] dataSplit = data.Split(':');
-
                                 // Ensure the data is in the correct format
                                 if (dataSplit.Length < 2)
                                     continue;
@@ -92,6 +98,15 @@ namespace chat_server
                                 }
                                 break;
 
+                            case ProtocolSICmdType.PUBLIC_KEY:
+                                // receive the public key from the client
+                                await this.ReceivePublicKey(protocolSI);
+                                break;
+
+                            case ProtocolSICmdType.SECRET_KEY:
+                                this.ReceiveSecretKey(protocolSI.GetData());
+                                break;
+
                             case ProtocolSICmdType.EOT:
                                 Console.WriteLine("[SERVER]: Client " + id + " disconnected (EOT)");
                                 break;
@@ -115,8 +130,6 @@ namespace chat_server
                 }
             }
         }
-
-
 
         private async Task ChatCommand(string data)
         {
@@ -178,7 +191,7 @@ namespace chat_server
 
                 ProtocolSI protocolSI = new ProtocolSI();
                 // Format the login information to send to the client
-                byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.ACK, Encoding.UTF8.GetBytes(dataToSend));
+                byte[] dataPacket = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(dataToSend));
 
                 // Send the data to the client side
                 await networkStream.WriteAsync(dataPacket, 0, dataPacket.Length);
@@ -189,7 +202,7 @@ namespace chat_server
                 {
                     string connectionToSend = $"serverconnection:{userID.Value}:{this.username}:true";
                     // Format the connection information to send to the client
-                    byte[] conn = protocolSI.Make(ProtocolSICmdType.ACK, Encoding.UTF8.GetBytes(connectionToSend));
+                    byte[] conn = protocolSI.Make(ProtocolSICmdType.DATA, Encoding.UTF8.GetBytes(connectionToSend));
 
                     Console.WriteLine("sending new connection to the client");
 
@@ -243,7 +256,7 @@ namespace chat_server
             byte[] data = Encoding.UTF8.GetBytes(formatMessageToClient);
 
             ProtocolSI protocolSI = new ProtocolSI();
-            byte[] encryptData = protocolSI.Make(ProtocolSICmdType.ACK, data);
+            byte[] encryptData = protocolSI.Make(ProtocolSICmdType.DATA, data);
 
             foreach (var kvp in connectedClients)
             {
@@ -263,6 +276,23 @@ namespace chat_server
                     }
                 }
             }
+        }
+
+        private async Task ReceivePublicKey(ProtocolSI protocolSI)
+        {
+            NetworkStream networkStream = client.GetStream();
+            rsaServer = new RSACryptoServiceProvider();
+               
+            byte[] packet = protocolSI.Make(ProtocolSICmdType.PUBLIC_KEY, rsaServer.ToXmlString(false));
+            await networkStream.WriteAsync(packet, 0, packet.Length);
+        }
+
+        private void ReceiveSecretKey(byte[] data)
+        {
+            aesServer = new AesCryptoServiceProvider();
+            Console.WriteLine("[SERVER]: Received secret key from client");
+
+            aesServer.Key = rsaServer.Decrypt(data, true);
         }
     }
 }

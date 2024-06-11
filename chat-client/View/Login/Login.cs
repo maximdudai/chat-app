@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -31,6 +32,10 @@ namespace chat_client.View.Login
         private int id { get; set; }
         private string username { get; set; }
         private string password { get; set; }
+        private string publicKey { get; set; }
+
+        private RSACryptoServiceProvider rsaClient;
+        private AesCryptoServiceProvider aesClient;
 
         public Login()
         {
@@ -44,6 +49,9 @@ namespace chat_client.View.Login
 
             networkStream = tcpClient.GetStream();
             protocolSI = new ProtocolSI();
+
+            Task.Run(async () => await this.ReceiveDataFromServer());
+            Task.Run(async () => await this.GeneratePublicKey());
 
             this.isPasswordVisible = false;
     }
@@ -101,7 +109,6 @@ namespace chat_client.View.Login
                 log.AddLog($"Login attempt with username: {username}");
 
                 // Start receiving data from the server asynchronously
-                await ReceiveDataFromServer();
             }
             catch (Exception ex)
             {
@@ -118,31 +125,40 @@ namespace chat_client.View.Login
             NetworkStream networkStream = tcpClient.GetStream();
             ProtocolSI protocolSI = new ProtocolSI();
             try
-            {
-                // Read and process data from the server asynchronously
-                int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
-                if (bytesRead > 0)
+            { 
+                while (true)
                 {
+                    int bytesRead = await networkStream.ReadAsync(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                    if(bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                string data = Encoding.UTF8.GetString(protocolSI.GetData());
+                string[] dataSplit = data.Split(':');
+
+                Console.WriteLine($"Command received: " + protocolSI.GetCmdType() + " datasplit0: " + dataSplit[0]);
+
                     switch (protocolSI.GetCmdType())
                     {
-                        case ProtocolSICmdType.ACK:
-                        {
-                            string data = Encoding.UTF8.GetString(protocolSI.GetData());
-                            string[] dataSplit = data.Split(':');
-
-                            switch (dataSplit[0])
+                        case ProtocolSICmdType.DATA:
                             {
-                                case "serverlogin":
-                                    this.OnClientLogin(data);
-                                    return;
+                                switch (dataSplit[0])
+                                {
+                                    case "serverlogin":
+                                        this.OnClientLogin(data);
+                                        break;
 
-                                default:
-                                    break;
+                                    default:
+                                        break;
 
+                                }
+                                break;
                             }
+
+                        case ProtocolSICmdType.PUBLIC_KEY:
+                            await this.OnClientReceivePublicKey(protocolSI.GetData());
                             break;
-                        }
-                            
 
                         case ProtocolSICmdType.EOT:
                             Console.WriteLine("Client disconnected");
@@ -167,6 +183,8 @@ namespace chat_client.View.Login
         private void OnClientLogin(string data)
         {
             string[] dataSplit = data.Split(':');
+
+            Console.WriteLine($"Received data from server: {data}");
 
             // Await the server response to the login request
             // if the response is an string, it means the login failed
@@ -223,5 +241,40 @@ namespace chat_client.View.Login
             this.OnClientClose(sender, null);
         }
 
+        private async Task GeneratePublicKey()
+        {
+            Console.WriteLine("Generating public key");
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                this.publicKey = rsa.ToXmlString(false);
+            }
+
+            ProtocolSI protocolSI = new ProtocolSI();
+            byte[] keyToServer = protocolSI.Make(ProtocolSICmdType.PUBLIC_KEY, Encoding.UTF8.GetBytes(this.publicKey));
+
+            Console.WriteLine("Sending public key to client");
+
+            await networkStream.WriteAsync(keyToServer, 0, keyToServer.Length);
+        }
+        private async Task OnClientReceivePublicKey(byte[] data)
+        {
+            Console.WriteLine("Received public key from client");
+
+            //receber pub key do server
+            rsaClient = new RSACryptoServiceProvider();
+
+            string publicKey = Encoding.UTF8.GetString(data);
+            rsaClient.FromXmlString(publicKey);
+
+            aesClient = new AesCryptoServiceProvider();
+            byte[] encryptedKey = rsaClient.Encrypt(aesClient.Key, true);
+
+            ProtocolSI protocolSI = new ProtocolSI();
+            byte[] privateKey = protocolSI.Make(ProtocolSICmdType.SECRET_KEY, encryptedKey);
+
+            Console.WriteLine("Sending private key to client");
+
+            await networkStream.WriteAsync(privateKey, 0, privateKey.Length);
+        }
     }
 }

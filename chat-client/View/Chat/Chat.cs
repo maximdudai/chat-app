@@ -226,7 +226,7 @@ namespace chat_client.View.Chat
 
                     switch (cmdType)
                     {
-                        case ProtocolSICmdType.ACK:
+                        case ProtocolSICmdType.DATA:
                             // Ensure the data is in the correct format
                             if (dataSplit.Length < 2)
                                 continue;
