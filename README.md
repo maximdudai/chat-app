@@ -39,4 +39,4 @@ This project is a Secure Chat Application developed as part of the coursework fo
 ## Technologies
 - **Sockets TCP/IP in .NET**
 - **Cryptographic Algorithms in .NET**
-- **Authentication mechanisms**
+- **ProtocolSI
