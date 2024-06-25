@@ -1,7 +1,7 @@
 # Secure Chat Application
 
 ## Overview
-This project is a Secure Chat Application developed as part of the coursework for the Information Systems Programming course in the 2023/2024 academic year. The main objective of this project is to create a chat system with secure message exchange using C# (Windows Forms, Console Application, and Web App). The project consists of two modules: client and server.
+This project is a Secure Chat Application developed as part of the coursework for the Information Systems Programming course in the 2023/2024 academic year. The main objective of this project is to create a chat system with secure message exchange using C# (Windows Forms (client) and Console Application (server)). The project consists of two modules: client and server.
 
 ## Authors
 - [Maxim D.](https://github.com/maximdudai)
